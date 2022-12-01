@@ -682,7 +682,7 @@ public class BandwidthTest {
 //        initThread.start();
 //        initThread.join();
         // 手动指定ip list, 方便开发
-        initThread.ipList = new ArrayList<>(Arrays.asList("81.70.55.189")); //"81.70.193.140",
+        initThread.ipList = new ArrayList<>(Arrays.asList("192.168.1.8")); //"81.70.193.140",
         Log.d("ip list", String.valueOf(initThread.ipList));
 
         long startTime = System.currentTimeMillis();

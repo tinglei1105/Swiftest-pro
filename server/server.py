@@ -74,9 +74,22 @@ class TcpConn(threading.Thread):
                 print('Connection from %s:%s closed.' % self.addr)
                 break
 
+def get_host_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+
+    return ip
+
 if __name__ == '__main__':
     host = socket.gethostname()
     print(host)
+    ip = socket.gethostbyname(host)
+    print(ip)
+    print(get_host_ip())
     port = 8080
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

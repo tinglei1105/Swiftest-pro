@@ -17,17 +17,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.swiftest.speedtest.BandwidthTestable;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
-
+import  com.example.swiftest.speedtest.*;
 public class MainActivity extends AppCompatActivity {
-    BandwidthTest bandwidthTest = new BandwidthTest(this);
     boolean isTesting = false;
-
+    BandwidthTestable bandwidthTest;
     //for test
     class myTestThread extends Thread {
 //        ArrayList<Double> speedSample;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         TextView traffic_text = findViewById(R.id.traffic);
         Button button = findViewById(R.id.start);
         MyView myView = findViewById(R.id.my_view);
-
+        bandwidthTest=new BandwidthTester(this);
         button.setOnClickListener(view -> {
             if (isTesting) {
                 isTesting = false;
@@ -96,26 +97,28 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 isTesting = true;
                 //清空
-                bandwidthTest.speedSample.clear();
+                // bandwidthTest.speedSample.clear();
 
                 button.setText(R.string.stop);
                 bandwidth_text.setText(R.string.testing);
                 duration_text.setText(R.string.testing);
                 traffic_text.setText(R.string.testing);
 
-                myTestThread mtt = new myTestThread(bandwidthTest.speedSample, myView);
-                mtt.start();
+                // myTestThread mtt = new myTestThread(bandwidthTest.speedSample, myView);
+                // mtt.start();
 
                 new Thread(() -> {
                     String bandwidth = "0";
                     String duration = "0";
                     String traffic = "0";
+                    TestResult result;
                     try {
-//                        bandwidthTest.SpeedTest();
-                        bandwidthTest.SpeedTestNew(); // UDP test
-                        bandwidth = bandwidthTest.bandwidth_Mbps;
-                        duration = bandwidthTest.duration_s;
-                        traffic = bandwidthTest.traffic_MB;
+                        //bandwidthTest.SpeedTest();
+                        //bandwidthTest.SpeedTestNew(); // UDP test
+                        result=bandwidthTest.test();
+                        bandwidth = String.format(Locale.CHINA,"%.2f",result.bandwidth);
+                        duration = String.format(Locale.CHINA,"%.2f",result.duration);
+                        traffic = String.format(Locale.CHINA,"%.2f",result.traffic);
                         // network = bandwidthTest.networkType;
                         bandwidthTest.stop();
                     } catch (Exception e) {
