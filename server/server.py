@@ -40,6 +40,7 @@ class Sender(threading.Thread):
         data, client_address = self.udpSock.recvfrom(DATAGRAM_SIZE)
         client_name = str(client_address[0]) + ':' + str(client_address[1])
         print('receive package, data=%s, address=%s' % (data, str(client_address)))
+        self.ctl.message_getted()
         port = client_address[1]
         
         print('start sending')
@@ -57,23 +58,33 @@ class TcpConn(threading.Thread):
         self.conn = conn
         self.addr = addr
         self.stop = False
-    
+        self.status="normal"
     def run(self):
         while True:
-            data = conn.recv(1024)
-            msg = data.decode('utf-8')
-            msg = msg.split('-')
-            if msg[0] == 'SET':
-                speed = int(msg[1]) # Mbps
-                sendingTime = int(msg[2]) # ms
-                sender = Sender(self.addr, speed, sendingTime, self)
-                sender.start()
-            if msg[0] == 'FIN':
-                self.stop = True
-                self.conn.close()
-                print('Connection from %s:%s closed.' % self.addr)
-                break
+            if self.status=="normal":
+                data = conn.recv(1024)
+                msg = data.decode('utf-8')
+                msg = msg.split('-')
+                print("wait----")
+                if msg[0] == 'SET':
+                    speed = int(msg[1]) # Mbps
+                    sendingTime = int(msg[2]) # ms
+                    sender = Sender(self.addr, speed, sendingTime, self)
+                    self.status="wait"
+                    sender.start()
+                if msg[0] == 'FIN':
+                    self.stop = True
+                    self.conn.close()
+                    print('Connection from %s:%s closed.' % self.addr)
+                    break
+            else:
+                print("sleep---")
+                time.sleep(0.1)
 
+    def message_getted(self):
+        res = conn.send(b"get")
+        print(res)
+        self.status="normal"
 def get_host_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

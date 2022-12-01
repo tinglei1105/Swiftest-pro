@@ -39,7 +39,7 @@ public class DownloadTest {
         for (int i = 0; i < serverNum; i++) {
             Log.d("send set msg to server", String.valueOf(i));
             outputStreams.get(i).write(msg.getBytes());
-            Download download = new Download(serverIP.get(i), eachServerSpeed, sendingTime);
+            Download download = new Download(serverIP.get(i), ctlSocket.get(i),eachServerSpeed, sendingTime);
             downloads.add(download);
         }
         for (Download download : downloads) {

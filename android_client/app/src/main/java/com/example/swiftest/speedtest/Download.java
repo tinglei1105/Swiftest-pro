@@ -6,10 +6,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class Download extends Thread {
-    DatagramSocket socket;
+    DatagramSocket dataSocket;
+    Socket ctlSocket;
     String ip;
     int speed;
     int sendingTime;
@@ -18,9 +22,10 @@ class Download extends Thread {
     long receivingTime = 0;
     public ArrayList<Double> speedSample=new ArrayList<>();
 
-    Download(String ip, int speed, int sendingTime) {
+    Download(String ip, Socket ctlSocket,int speed, int sendingTime) {
         try {
-            socket = new DatagramSocket();
+            dataSocket = new DatagramSocket();
+            this.ctlSocket=ctlSocket;
             this.ip = ip;
             this.speed = speed;
             this.sendingTime = sendingTime;
@@ -47,19 +52,49 @@ class Download extends Thread {
             } while (size != lastSize || size == 0);
             // Log.d("size changed", String.valueOf(size) + String.valueOf(lastSize));
         });
-        Thread receiver = new Thread(() -> {
+        AtomicBoolean serverKnown= new AtomicBoolean(false);
+        Thread trigger = new Thread(()->{
+            byte[] send_data = "start".getBytes();
+            DatagramPacket send_packet = null;
             try {
-                byte[] send_data = "start".getBytes();
-                DatagramPacket send_packet = new DatagramPacket(send_data, send_data.length, InetAddress.getByName(ip), 9876);
-                socket.send(send_packet);
+                send_packet = new DatagramPacket(send_data, send_data.length, InetAddress.getByName(ip), 9876);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            while (!serverKnown.get()){
+                try {
+                    for(int i=0;i<10;i++){
+                        dataSocket.send(send_packet);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Log.d("send", "trigger");
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d("trigger","end");
 
+        });
+        Thread receiver = new Thread(() -> {
+            byte[] ack=new byte[1024];
+            try {
+                ctlSocket.getInputStream().read(ack);
+                serverKnown.set(true);
+                Log.d("receiver","server has known the");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
                 long startTime = 0;
-//                    long lastTime = 0;
-//                    long lastSize = 0;
+//                long lastTime = 0;
+//                long lastSize = 0;
                 Thread t = Thread.currentThread();
                 while (!t.isInterrupted()) {
-                    socket.receive(receive_packet);
+                    dataSocket.receive(receive_packet);
                     if (startTime == 0) {
                         startTime = System.currentTimeMillis();
                         Log.d("first packet arrived", String.valueOf(startTime));
@@ -83,7 +118,9 @@ class Download extends Thread {
         });
         receiver.start();
         checker.start();
+        trigger.start();
         try {
+            trigger.join();
             checker.join();
             receiver.interrupt();
             Log.d("receive bytes", String.valueOf(size));
