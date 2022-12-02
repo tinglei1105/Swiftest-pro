@@ -43,14 +43,13 @@ class Sender(threading.Thread):
         self.ctl.message_getted()
         port = client_address[1]
         
-        print('start sending')
-        start_time = time.time()
-        while time.time() - start_time < self.sendingTime and self.ctl.stop != True:
-            t = time.time() - start_time
+        # print('start sending')
+        self.start_time = time.time()
+        while time.time() - self.start_time < self.sendingTime and self.ctl.stop != True:
+            t = time.time() - self.start_time
             if self.byte_count <= self.speed/8*1024*1024*t - DATAGRAM_SIZE:
                 self.byte_count += self.udpSock.sendto(bytes(getDatagram(), encoding='ascii'), (self.ip, port))
-        print('client: %s:%s, duration: %f s, byte_count: %.2f (%.2f MB), setting speed: %.2f' % (self.ip, port, time.time() - start_time, self.byte_count, self.byte_count/1024/1024, self.speed))
-
+        self.end_time=time.time()
 
 class TcpConn(threading.Thread):
     def __init__(self, conn, addr):
@@ -60,30 +59,36 @@ class TcpConn(threading.Thread):
         self.stop = False
         self.status="normal"
     def run(self):
+        sender = Sender(self.addr, 0, 0, self)
         while True:
             if self.status=="normal":
                 data = conn.recv(1024)
                 msg = data.decode('utf-8')
                 msg = msg.split('-')
-                print("wait----")
+                # print("wait----")
                 if msg[0] == 'SET':
                     speed = int(msg[1]) # Mbps
                     sendingTime = int(msg[2]) # ms
-                    sender = Sender(self.addr, speed, sendingTime, self)
+                    print("speed",speed)
+                    sender.speed=speed
+                    sender.sendingTime=sendingTime/1000
                     self.status="wait"
                     sender.start()
                 if msg[0] == 'FIN':
                     self.stop = True
                     self.conn.close()
                     print('Connection from %s:%s closed.' % self.addr)
+                    print('client: %s:%s, duration: %f s, byte_count: %.2f (%.2f MB)sent %.2f (%.2f MB) received, setting speed: %.2f' % (
+                    sender.ip, port, sender.end_time - sender.start_time, sender.byte_count, sender.byte_count / 1024 / 1024,
+                    float(msg[1]),float(msg[1])/1024/1024,
+                    sender.speed))
                     break
             else:
-                print("sleep---")
+                # print("sleep---")
                 time.sleep(0.1)
 
     def message_getted(self):
-        res = conn.send(b"get")
-        print(res)
+        conn.send(b"get")
         self.status="normal"
 def get_host_ip():
     try:
@@ -96,10 +101,10 @@ def get_host_ip():
     return ip
 
 if __name__ == '__main__':
-    host = socket.gethostname()
-    print(host)
-    ip = socket.gethostbyname(host)
-    print(ip)
+    # host = socket.gethostname()
+    # print(host)
+    # ip = socket.gethostbyname(host)
+    # print(ip)
     print(get_host_ip())
     port = 8080
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

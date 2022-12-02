@@ -70,7 +70,8 @@ public class DownloadTest {
             sendSpeed += 200;
         }
         for (int i = 0; i < serverIP.size(); i++) {
-            outputStreams.get(i).write("FIN".getBytes());
+            String finMessage=String.format(Locale.CHINA,"FIN-%.2f",trafficMB*1024*1024);
+            outputStreams.get(i).write(finMessage.getBytes());
             ctlSocket.get(i).close();
         }
         return (sendingTime/(double)recvTime)*sendSpeed;

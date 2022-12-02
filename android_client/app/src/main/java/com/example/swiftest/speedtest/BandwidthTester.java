@@ -43,7 +43,7 @@ public class BandwidthTester implements BandwidthTestable{
         long startTime = System.currentTimeMillis();
         //TODO init step: get the ip list
         // Now we just use a fixed ip
-        ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("192.168.1.8"));
+        ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("192.168.1.4"));
         DownloadTest downloadTest=new DownloadTest(ipList,getNetworkType());
 
         double result=downloadTest.test();
