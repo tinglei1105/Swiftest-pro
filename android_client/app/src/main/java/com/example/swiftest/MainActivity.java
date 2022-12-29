@@ -3,17 +3,10 @@ package com.example.swiftest;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,7 +15,6 @@ import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Locale;
 
 import  com.example.swiftest.speedtest.*;
@@ -88,7 +80,10 @@ public class MainActivity extends AppCompatActivity {
         TextView traffic_text = findViewById(R.id.traffic);
         Button button = findViewById(R.id.start);
         MyView myView = findViewById(R.id.my_view);
-        bandwidthTest=new BandwidthTester(this);
+        //bandwidthTest=new NonFloodingTester(this);
+        bandwidthTest= new FloodingTester(this);
+
+
         button.setOnClickListener(view -> {
             if (isTesting) {
                 isTesting = false;
@@ -103,9 +98,13 @@ public class MainActivity extends AppCompatActivity {
                 bandwidth_text.setText(R.string.testing);
                 duration_text.setText(R.string.testing);
                 traffic_text.setText(R.string.testing);
-
-                // myTestThread mtt = new myTestThread(bandwidthTest.speedSample, myView);
-                // mtt.start();
+                // flooding test专有，绘制图像
+                if (bandwidthTest.getClass().equals(FloodingTester.class)){
+                    FloodingTester tester = (FloodingTester)bandwidthTest;
+                    tester.speedSample.clear();
+                    myTestThread mtt = new myTestThread(tester.speedSample, myView);
+                    mtt.start();
+                }
 
                 new Thread(() -> {
                     String bandwidth = "0";
@@ -113,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
                     String traffic = "0";
                     TestResult result;
                     try {
-                        //bandwidthTest.SpeedTest();
-                        //bandwidthTest.SpeedTestNew(); // UDP test
                         result=bandwidthTest.test();
                         bandwidth = String.format(Locale.CHINA,"%.2f",result.bandwidth);
                         duration = String.format(Locale.CHINA,"%.2f",result.duration);

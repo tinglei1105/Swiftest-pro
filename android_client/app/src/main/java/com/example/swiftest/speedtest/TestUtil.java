@@ -1,63 +1,12 @@
 package com.example.swiftest.speedtest;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
-import com.example.swiftest.BandwidthTest;
-
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-
-public class BandwidthTester implements BandwidthTestable{
-    Context context;
-    private boolean stop=false;
-    public BandwidthTester(Context context){
-        this.context=context;
-    }
-
-    /**
-     * This function is synchronous
-     */
-    public TestResult test() throws IOException, InterruptedException {
-        stop=false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.d("No permission:", "ACCESS_FINE_LOCATION");
-
-                // TODO: throw an error?
-                return new TestResult();
-            }
-        }
-        long startTime = System.currentTimeMillis();
-        //TODO init step: get the ip list
-        // Now we just use a fixed ip
-        ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("192.168.1.4"));
-        DownloadTest downloadTest=new DownloadTest(ipList,getNetworkType());
-
-        double result=downloadTest.test();
-        return new TestResult(result,(double) (System.currentTimeMillis() - startTime) / 1000,downloadTest.getTrafficMB());
-
-
-    }
-
-    @Override
-    public void stop() {
-        this.stop=true;
-    }
-
-    String getNetworkType() {
+public class TestUtil {
+    public static String getNetworkType(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isAvailable())

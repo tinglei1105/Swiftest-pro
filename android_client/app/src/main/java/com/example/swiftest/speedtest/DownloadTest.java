@@ -2,8 +2,6 @@ package com.example.swiftest.speedtest;
 
 import android.util.Log;
 
-import com.example.swiftest.BandwidthTest;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
