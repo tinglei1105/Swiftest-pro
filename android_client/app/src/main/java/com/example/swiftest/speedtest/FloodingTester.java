@@ -135,8 +135,9 @@ public class FloodingTester implements BandwidthTestable{
         duration_s = (double) (System.currentTimeMillis() - startTime) / 1000;
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
-
-        return new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
+        TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
+        TestUtil.uploadTestResult(result);
+        return result;
     }
 
     @Override

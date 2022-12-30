@@ -12,4 +12,5 @@ func register(r *gin.Engine) {
 	})
 	r.GET("/speedtest/iplist/available", view.GetIPList)
 	r.POST("/speedtest/info", view.GetInfo)
+	r.POST("/speedtest/data/upload", view.UploadData)
 }

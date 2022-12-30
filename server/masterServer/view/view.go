@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"masterServer/config"
+	"masterServer/model"
 	"masterServer/service"
 	"net/http"
 )
@@ -69,4 +70,23 @@ func GetInfo(c *gin.Context) {
 	}
 	res.ServerNum, res.IpList = service.SS(eBandwidth)
 	c.JSON(http.StatusOK, res)
+}
+
+func UploadData(c *gin.Context) {
+	var data model.TestData
+	if err := c.BindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "wrong data format",
+		})
+		return
+	}
+	if err := model.AddData(data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "cannot write data",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 }
