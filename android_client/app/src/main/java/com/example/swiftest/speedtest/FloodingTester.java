@@ -27,7 +27,9 @@ public class FloodingTester implements BandwidthTestable{
     Context context;
     private boolean stop = true;
     public String networkType;
-
+    //final static private String MasterIP = "192.168.31.247";
+    final static private String MasterIP = "124.223.41.138";
+    //final static private String MasterIP = "118.31.164.30";
     final static private int ThreadNum = 4;
     final static private int ServerCapability = 100;            // 100Mbps per server
 
@@ -145,7 +147,7 @@ public class FloodingTester implements BandwidthTestable{
     // InitThread 的工作是获取一个可用的ip列表，然后ping每个服务器，根据rtt排序
     static class InitThread extends Thread {
         public ArrayList<String> ipList;
-        final static private String MasterIP = "118.31.164.30";
+
         final static private int InitTimeout = 500;
         final static private int MinFinishedNum = 5;
         InitThread() {
@@ -177,7 +179,7 @@ public class FloodingTester implements BandwidthTestable{
                     for (int i = 0; i < server_num; ++i)
                         ipList.add(jsonArray.getString(i));
                     connection.disconnect();
-
+                    Log.d("Init", ipList.toString());
                     ArrayList<FloodingTester.PingThread> pingThreads = new ArrayList<>();
                     for (String ip : ipList)
                         pingThreads.add(new FloodingTester.PingThread(ip));
@@ -221,7 +223,7 @@ public class FloodingTester implements BandwidthTestable{
 
         public void run() {
             try {
-                URL url = new URL("http://" + ip + "/testping.html");
+                URL url = new URL("http://" + ip + ":8080/ping");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(PingTimeout);
@@ -230,6 +232,7 @@ public class FloodingTester implements BandwidthTestable{
                 connection.connect();
                 connection.getResponseCode();
                 rtt = System.currentTimeMillis() - nowTime;
+                Log.d("PING Thread", String.format("rtt: %d",rtt));
                 connection.disconnect();
                 finished = true;
             } catch (IOException e) {
@@ -280,9 +283,11 @@ public class FloodingTester implements BandwidthTestable{
                     socket.receive(receive_packet);
                     String receive_data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                     size += receive_data.length();
+                    Log.d("Download Thread", String.format("receive %d",size));
                 }
 
                 socket.send(stop_packet);
+                Log.d("Download Thread","Send stop");
                 socket.close();
 
             } catch (IOException e) {

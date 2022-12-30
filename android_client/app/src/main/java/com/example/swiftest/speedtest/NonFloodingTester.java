@@ -37,7 +37,9 @@ public class NonFloodingTester implements BandwidthTestable{
         long startTime = System.currentTimeMillis();
         //TODO init step: get the ip list
         // Now we just use a fixed ip
-        ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("81.70.55.189"));
+        //ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("81.70.55.189"));
+        ArrayList<String>ipList=new ArrayList<>(Collections.singletonList("192.168.31.247"));
+
         DownloadTest downloadTest=new DownloadTest(ipList,getNetworkType());
 
         double result=downloadTest.test();
