@@ -141,8 +141,16 @@ public class FloodingTester implements BandwidthTestable{
         TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
         cellInfo = NetworkUtil.getCellInfo(context);
         wifiInfo = NetworkUtil.getWifiInfo(context);
+        cellInfo.add(new MyNetworkInfo.CellInfo("",new MyNetworkInfo.CellInfo.CellIdentityCdma("","","","",""),null));
         Log.d("cell info",cellInfo.toString());
         Log.d("wifi info",wifiInfo.toString());
+
+        try {
+            Log.d("wifi info json",TestUtil.toJsonObjectString(wifiInfo));
+            Log.d("cell info json",TestUtil.toJsonArrayString(cellInfo));
+        } catch (IllegalAccessException | JSONException e) {
+            e.printStackTrace();
+        }
         TestUtil.uploadTestResult(result);
         return result;
     }

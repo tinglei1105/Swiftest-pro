@@ -2,11 +2,16 @@ package com.example.swiftest.speedtest;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Objects;
 
 public class TestUtil {
     public static void uploadTestResult(TestResult result) {
@@ -43,6 +48,37 @@ public class TestUtil {
         }
     }
 
+    public static String toJsonObjectString(Object obj) throws IllegalAccessException, JSONException {
+        JSONObject jsonObject=toJsonObject(obj);
 
+        return jsonObject.toString();
+    }
 
+    public static JSONObject toJsonObject(Object obj) throws IllegalAccessException, JSONException {
+        JSONObject jsonObject=new JSONObject();
+
+        for(Field field:obj.getClass().getFields()){
+            if(field.get(obj)==null){
+                continue;
+            }
+            Object fieldObj= field.get(obj);
+            assert fieldObj != null;
+
+            //Log.d("FIELD", String.format("%s %s",field.getName(),fieldObj.getClass()));
+            if(fieldObj.getClass().isPrimitive() || fieldObj instanceof String){
+                jsonObject.put(field.getName(),fieldObj);
+            }else {
+                jsonObject.put(field.getName(),toJsonObject(fieldObj));
+            }
+        }
+        return jsonObject;
+    }
+
+    public  static String toJsonArrayString(List<?> arr) throws JSONException, IllegalAccessException {
+        JSONArray jsonArray=new JSONArray();
+        for(Object obj:arr){
+            jsonArray.put(toJsonObject(obj));
+        }
+        return jsonArray.toString();
+    }
 }

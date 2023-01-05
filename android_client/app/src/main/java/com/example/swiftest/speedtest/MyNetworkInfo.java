@@ -2,6 +2,11 @@ package com.example.swiftest.speedtest;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class MyNetworkInfo {
@@ -354,6 +359,8 @@ public class MyNetworkInfo {
                     ", wifi_ScanResultInfo='" + wifi_ScanResultInfo + '\'' +
                     '}';
         }
+
+
     }
 
     public MyNetworkInfo(String apiLevel, String connectionType, List<CellInfo> cellInfo, WifiInfo wifiInfo) {
