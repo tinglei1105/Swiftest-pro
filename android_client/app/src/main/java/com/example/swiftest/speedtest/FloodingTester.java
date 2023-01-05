@@ -22,11 +22,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class FloodingTester implements BandwidthTestable{
     Context context;
     private boolean stop = true;
     public String networkType;
+    public List<MyNetworkInfo.CellInfo> cellInfo;
+    public MyNetworkInfo.WifiInfo wifiInfo;
     //final static private String MasterIP = "192.168.31.247";
     final static private String MasterIP = "124.223.41.138";
     //final static private String MasterIP = "118.31.164.30";
@@ -65,7 +68,7 @@ public class FloodingTester implements BandwidthTestable{
             }
         }
 
-        networkType = TestUtil.getNetworkType(context);
+        networkType = NetworkUtil.getNetworkType(context);
 
         FloodingTester.InitThread initThread = new FloodingTester.InitThread();
         initThread.start();
@@ -136,6 +139,10 @@ public class FloodingTester implements BandwidthTestable{
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
         TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
+        cellInfo = NetworkUtil.getCellInfo(context);
+        wifiInfo = NetworkUtil.getWifiInfo(context);
+        Log.d("cell info",cellInfo.toString());
+        Log.d("wifi info",wifiInfo.toString());
         TestUtil.uploadTestResult(result);
         return result;
     }
@@ -284,11 +291,11 @@ public class FloodingTester implements BandwidthTestable{
                     socket.receive(receive_packet);
                     String receive_data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                     size += receive_data.length();
-                    Log.d("Download Thread", String.format("receive %d",size));
+                    //Log.d("Download Thread", String.format("receive %d",size));
                 }
 
                 socket.send(stop_packet);
-                Log.d("Download Thread","Send stop");
+                //Log.d("Download Thread","Send stop");
                 socket.close();
 
             } catch (IOException e) {
