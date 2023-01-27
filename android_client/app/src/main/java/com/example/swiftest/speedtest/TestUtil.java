@@ -7,14 +7,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TestUtil {
-    public static void uploadTestResult(TestResult result) {
+    public static void uploadTestResult(TestResult result,TestResult baseline, ArrayList<Double>speedSample,
+                                        MyNetworkInfo networkInfo) {
         try {
             URL url = new URL("http://124.223.41.138:8080/speedtest/data/upload");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -25,19 +28,24 @@ public class TestUtil {
             conn.setDoInput(true);
 
             JSONObject jsonParam = new JSONObject();
-            //"bandwidth":10.5,
-            //    "duration":0.5,
-            //    "traffic":2.1
             jsonParam.put("bandwidth", result.bandwidth);
             jsonParam.put("duration", result.duration);
             jsonParam.put("traffic", result.traffic);
-
+            jsonParam.put("speed_sample",new JSONArray(speedSample));
+            jsonParam.put("network_type",networkInfo.networkType);
+            jsonParam.put("cell_info",toJsonArray(networkInfo.cellInfo).toString());
+            jsonParam.put("wifi_info",toJsonObject(networkInfo.wifiInfo).toString());
+            jsonParam.put("baseline",baseline.bandwidth);
+            //jsonParam.put("wifi_info","{\"wifi_SSID\":\"\\\"程搓搓和邱摆摆\\\"\"}");
             Log.i("JSON", jsonParam.toString());
             DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-            os.writeBytes(jsonParam.toString());
-
-            os.flush();
-            os.close();
+            OutputStreamWriter writer=new OutputStreamWriter(os, StandardCharsets.UTF_8);
+            //os.writeBytes(jsonParam.toString());
+            writer.write(jsonParam.toString());
+            //os.flush();
+            //os.close();
+            writer.flush();
+            writer.close();
 
             Log.i("STATUS", String.valueOf(conn.getResponseCode()));
             Log.i("MSG", conn.getResponseMessage());
@@ -74,11 +82,11 @@ public class TestUtil {
         return jsonObject;
     }
 
-    public  static String toJsonArrayString(List<?> arr) throws JSONException, IllegalAccessException {
+    public  static JSONArray toJsonArray(List<?> arr) throws JSONException, IllegalAccessException {
         JSONArray jsonArray=new JSONArray();
         for(Object obj:arr){
             jsonArray.put(toJsonObject(obj));
         }
-        return jsonArray.toString();
+        return jsonArray;
     }
 }

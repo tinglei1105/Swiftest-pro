@@ -21,12 +21,20 @@ for ip in ${ip_list[@]}; do
         fi
     "
     sshpass -e scp ./testServer/server_flooding.py "ubuntu@$ip":/home/ubuntu/swifttest
+     sshpass -e ssh -o StrictHostKeyChecking=no "ubuntu@$ip" "
+     ps aux|grep pingServer |grep -v grep| awk '{print \$2}' |xargs kill -9
+     "
+    
     sshpass -e scp ./pingServer/pingServer "ubuntu@$ip":/home/ubuntu/swifttest
-    # sshpass -e ssh -o StrictHostKeyChecking=no "ubuntu@$ip" "
-    #     cd /home/ubuntu/swifttest
-    #     nohup python3 -u server_flooding.py > flooding.log 2>&1 &
-    #     nohup ./pingServer > ping.log 2>&1 &
+    sshpass -e ssh -o StrictHostKeyChecking=no "ubuntu@$ip" "
+         cd /home/ubuntu/swifttest
+    #nohup python3 -u server_flooding.py > flooding.log 2>&1 &
+    nohup ./pingServer > ping.log 2>&1 &
     #     cat flooding.log
     #     cat ping.log
-    # "
+    "
+    #  mkdir static
+    #  cd static
+    #  echo pong >ping
+    #  dd if=/dev/zero of=GB  bs=1G count=1
 done

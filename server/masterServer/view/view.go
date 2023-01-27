@@ -74,12 +74,17 @@ func GetInfo(c *gin.Context) {
 
 func UploadData(c *gin.Context) {
 	var data model.TestData
+	//d, _ := io.ReadAll(c.Request.Body)
+	//fmt.Printf("%s\n", d)
 	if err := c.BindJSON(&data); err != nil {
+		fmt.Printf("%#v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "wrong data format",
 		})
 		return
 	}
+	data.IP = c.ClientIP()
+	fmt.Printf("receive: %#v\n", data)
 	if err := model.AddData(data); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "cannot write data",

@@ -38,8 +38,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Test result: "
-            android:textColor="#000000"
-            android:textSize="24dp" />
+            style="@style/result_text"
+            />
 
         <TextView
             android:layout_width="0dp"
@@ -51,8 +51,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0.00  Mbps"
-            android:textColor="#000000"
-            android:textSize="24dp" />
+            style="@style/result_text"
+             />
     </LinearLayout>
 
     <LinearLayout
@@ -68,8 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Test duration: "
-            android:textSize="24dp"
-            android:textColor="#000000" />
+           style="@style/result_text" />
 
         <TextView
             android:layout_width="0dp"
@@ -80,8 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0.00  s"
-            android:textSize="24dp"
-            android:textColor="#000000"/>
+            style="@style/result_text"/>
 
     </LinearLayout>
 
@@ -98,8 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Data usage: "
-            android:textSize="24dp"
-            android:textColor="#000000"/>
+            style="@style/result_text"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -109,23 +106,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0.00  MB"
-            android:textSize="24dp"
-            android:textColor="#000000"/>
-
+            style="@style/result_text"/>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/baseline_layout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/traffic_layout" >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Baseline: "
+            style="@style/result_text"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+        <TextView
+            android:id="@+id/baseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.00  Mbps"
+            style="@style/result_text"/>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="10000"
+        app:layout_constraintTop_toBottomOf="@id/baseline_layout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
     <Button
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="5dp"
         android:text="@string/start"
         android:textColor="#ffffff"
-        android:textSize="35dp"
+        android:textSize="20dp"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/traffic_layout" />
+        app:layout_constraintTop_toBottomOf="@id/progress_bar" />
+
 
 
 

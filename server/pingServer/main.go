@@ -13,7 +13,8 @@ func main() {
 			"message": "ok",
 		})
 	})
-	if err := r.Run("0.0.0.0:9000"); err != nil {
+	r.Static("/static", "static")
+	if err := r.Run("0.0.0.0:8080"); err != nil {
 		fmt.Println(err)
 	}
 }

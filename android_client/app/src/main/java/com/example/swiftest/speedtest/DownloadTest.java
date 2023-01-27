@@ -31,20 +31,20 @@ public class DownloadTest {
         int serverNum = (int) ((speed-1)/200) + 1;
         Log.d("server num", String.valueOf(serverNum));
         int eachServerSpeed = (int)(speed/serverNum);
-        ArrayList<Download> downloads = new ArrayList<>();
+        ArrayList<UDPDownload> downloads = new ArrayList<>();
         String msg = String.format(Locale.CHINA, "SET-%d-%d", eachServerSpeed, sendingTime);
         Log.d("set msg", msg);
         for (int i = 0; i < serverNum; i++) {
             Log.d("send set msg to server", String.valueOf(i));
             outputStreams.get(i).write(msg.getBytes());
-            Download download = new Download(serverIP.get(i), ctlSocket.get(i),eachServerSpeed, sendingTime);
+            UDPDownload download = new UDPDownload(serverIP.get(i), ctlSocket.get(i),eachServerSpeed, sendingTime);
             downloads.add(download);
         }
-        for (Download download : downloads) {
+        for (UDPDownload download : downloads) {
             download.start();
         }
         int avgRecvTime = 0;
-        for (Download download : downloads) {
+        for (UDPDownload download : downloads) {
             download.join();
             avgRecvTime += download.getReceivingTime();
             trafficMB += download.getTrafficMB();

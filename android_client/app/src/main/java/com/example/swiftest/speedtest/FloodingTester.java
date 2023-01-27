@@ -53,9 +53,15 @@ public class FloodingTester implements BandwidthTestable{
     public double traffic_MB ;
 
     public ArrayList<Double> speedSample = new ArrayList<>();
+    private ArrayList<String>ipList;
 
     public FloodingTester(Context context){
         this.context = context;
+    }
+
+    public FloodingTester(Context context,ArrayList<String>ipList){
+        this.context=context;
+        this.ipList=ipList;
     }
 
     @Override
@@ -69,12 +75,14 @@ public class FloodingTester implements BandwidthTestable{
         }
 
         networkType = NetworkUtil.getNetworkType(context);
+        if(ipList==null){
+            IPListGetter ipListGetter = new IPListGetter();
+            ipListGetter.start();
+            ipListGetter.join();
+            ipList=ipListGetter.getIpList();
+        }
 
-        FloodingTester.InitThread initThread = new FloodingTester.InitThread();
-        initThread.start();
-        initThread.join();
-
-        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(initThread.ipList, networkType);
+        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType);
 
 
         FloodingTester.SimpleChecker checker = new FloodingTester.SimpleChecker(speedSample);
@@ -139,19 +147,7 @@ public class FloodingTester implements BandwidthTestable{
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
         TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
-        cellInfo = NetworkUtil.getCellInfo(context);
-        wifiInfo = NetworkUtil.getWifiInfo(context);
-        cellInfo.add(new MyNetworkInfo.CellInfo("",new MyNetworkInfo.CellInfo.CellIdentityCdma("","","","",""),null));
-        Log.d("cell info",cellInfo.toString());
-        Log.d("wifi info",wifiInfo.toString());
 
-        try {
-            Log.d("wifi info json",TestUtil.toJsonObjectString(wifiInfo));
-            Log.d("cell info json",TestUtil.toJsonArrayString(cellInfo));
-        } catch (IllegalAccessException | JSONException e) {
-            e.printStackTrace();
-        }
-        TestUtil.uploadTestResult(result);
         return result;
     }
 
@@ -160,107 +156,8 @@ public class FloodingTester implements BandwidthTestable{
         stop = true;
     }
 
-    // InitThread 的工作是获取一个可用的ip列表，然后ping每个服务器，根据rtt排序
-    static class InitThread extends Thread {
-        public ArrayList<String> ipList;
 
-        final static private int InitTimeout = 500;
-        final static private int MinFinishedNum = 5;
-        InitThread() {
-            this.ipList = new ArrayList<>();
-        }
 
-        public void run() {
-            try {
-                URL url = new URL("http://" + MasterIP + ":8080/speedtest/iplist/available");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(InitTimeout);
-                connection.setReadTimeout(InitTimeout);
-                connection.connect();
-
-                if (connection.getResponseCode() == 200) {
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null)
-                        stringBuilder.append(line);
-
-                    JSONObject jsonObject = new JSONObject(stringBuilder.toString());
-
-                    int server_num = jsonObject.getInt("server_num");
-                    JSONArray jsonArray = jsonObject.getJSONArray("ip_list");
-                    ArrayList<String> ipList = new ArrayList<>();
-                    for (int i = 0; i < server_num; ++i)
-                        ipList.add(jsonArray.getString(i));
-                    connection.disconnect();
-                    Log.d("Init", ipList.toString());
-                    ArrayList<FloodingTester.PingThread> pingThreads = new ArrayList<>();
-                    for (String ip : ipList)
-                        pingThreads.add(new FloodingTester.PingThread(ip));
-                    for (FloodingTester.PingThread pingThread : pingThreads)
-                        pingThread.start();
-
-                    long start_time = System.currentTimeMillis();
-                    while (true) {
-                        int finish_num = 0;
-                        for (FloodingTester.PingThread pingThread : pingThreads)
-                            if (pingThread.finished)
-                                finish_num++;
-                        if (finish_num == server_num)
-                            break;
-                        if (System.currentTimeMillis() - start_time > InitTimeout && finish_num > MinFinishedNum)
-                            break;
-                    }
-
-                    Collections.sort(pingThreads);
-
-                    for (FloodingTester.PingThread pingThread : pingThreads)
-                        this.ipList.add(pingThread.ip);
-                }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // ping一个特定的地址，然后记录rtt
-    static class PingThread extends Thread implements Comparable<FloodingTester.PingThread> {
-        long rtt;
-        String ip;
-        boolean finished;
-        final static private int PingTimeout = 5000;
-        PingThread(String ip) {
-            this.ip = ip;
-            this.finished = false;
-            this.rtt = PingTimeout * 2;
-        }
-
-        public void run() {
-            try {
-                URL url = new URL("http://" + ip + ":8080/ping");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(PingTimeout);
-                connection.setReadTimeout(PingTimeout);
-                long nowTime = System.currentTimeMillis();
-                connection.connect();
-                connection.getResponseCode();
-                rtt = System.currentTimeMillis() - nowTime;
-                Log.d("PING Thread", String.format("rtt: %d",rtt));
-                connection.disconnect();
-                finished = true;
-            } catch (IOException e) {
-                finished = true;
-            }
-        }
-
-        @Override
-        public int compareTo(FloodingTester.PingThread pingThread) {
-            return Long.compare(rtt, pingThread.rtt);
-        }
-    }
 
     // 发送一个包后持续接收包，直到stopped被标记为true
     static class DownloadThread extends Thread {
@@ -428,6 +325,7 @@ public class FloodingTester implements BandwidthTestable{
                 } catch (InterruptedException e) {
                     double res = 0.0;
                     int n = speedSample.size();
+                    if(n<CheckerTimeoutWindow) return;
                     for (int k = n - CheckerTimeoutWindow; k < n; ++k)
                         res += speedSample.get(k);
                     simpleSpeed = res / CheckerTimeoutWindow;

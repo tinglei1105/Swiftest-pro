@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class Download extends Thread {
+class UDPDownload extends Thread {
     DatagramSocket dataSocket;
     Socket ctlSocket;
     String ip;
@@ -22,7 +22,7 @@ class Download extends Thread {
     long receivingTime = 0;
     public ArrayList<Double> speedSample=new ArrayList<>();
 
-    Download(String ip, Socket ctlSocket,int speed, int sendingTime) {
+    UDPDownload(String ip, Socket ctlSocket, int speed, int sendingTime) {
         try {
             dataSocket = new DatagramSocket();
             this.ctlSocket=ctlSocket;
