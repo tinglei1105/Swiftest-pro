@@ -18,6 +18,10 @@ func InitMysql() {
 	if err != nil {
 		panic(err)
 	}
+	err = db.AutoMigrate(&DataUsage{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func MySQL() *gorm.DB {

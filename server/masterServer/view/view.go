@@ -95,3 +95,46 @@ func UploadData(c *gin.Context) {
 		"message": "ok",
 	})
 }
+
+type serverReport struct {
+	Key   string
+	Count int
+}
+
+func ReportServerUsage(c *gin.Context) {
+	var report serverReport
+	if err := c.BindJSON(&report); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := model.AddDataUsage(report.Key, 0, report.Count); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
+func ReportClientUsage(c *gin.Context) {
+	var report serverReport
+	if err := c.BindJSON(&report); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := model.AddDataUsage(report.Key, report.Count, 0); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
