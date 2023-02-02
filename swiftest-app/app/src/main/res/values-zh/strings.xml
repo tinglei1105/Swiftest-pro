@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">秒测网速</string>
+    <string name="title_home">主页</string>
+    <string name="title_dashboard">面板</string>
+    <string name="title_notifications">通知</string>
+    <string name="title_configurations">设置</string>
+    <string name="lan_chinese_simplified">简体中文</string>
+    <string name="lan_english">英文</string>
+</resources>

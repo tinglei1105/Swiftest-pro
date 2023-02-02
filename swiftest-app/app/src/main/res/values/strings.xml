@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Swiftest</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_configurations">Configurations</string>
+    <string name="lan_chinese_simplified">Chinese(simplified)</string>
+    <string name="lan_english">English</string>
+</resources>
