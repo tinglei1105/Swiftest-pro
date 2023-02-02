@@ -10,8 +10,8 @@ import (
 )
 
 const BUFFER_SIZE = 1024
-const reportUrl = "http://127.0.0.1:9000/report/server"
-const reportUrlClient = "http://127.0.0.1:9000/report/client"
+const reportUrl = "http://124.223.41.138:8080/report/server"
+const reportUrlClient = "http://124.223.41.138:8080/report/client"
 
 type Sender struct {
 	stopped   bool

@@ -14,8 +14,19 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TestUtil {
+    public static String getRandomString(int length){
+        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random=new Random();
+        StringBuffer sb=new StringBuffer();
+        for(int i=0;i<length;i++){
+            int number=random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
+    }
     public static void uploadTestResult(TestResult result,TestResult baseline, ArrayList<Double>speedSample,
                                         MyNetworkInfo networkInfo) {
         try {
@@ -55,7 +66,39 @@ public class TestUtil {
             e.printStackTrace();
         }
     }
+    public static void uploadDataUsage(String key, long dataUsage){
+        try {
+            URL url = new URL("http://124.223.41.138:8080/report/client");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
 
+            JSONObject jsonParam = new JSONObject();
+            jsonParam.put("key", key);
+            jsonParam.put("count",dataUsage);
+
+            //jsonParam.put("wifi_info","{\"wifi_SSID\":\"\\\"程搓搓和邱摆摆\\\"\"}");
+            Log.i("JSON", jsonParam.toString());
+            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+            OutputStreamWriter writer=new OutputStreamWriter(os, StandardCharsets.UTF_8);
+            //os.writeBytes(jsonParam.toString());
+            writer.write(jsonParam.toString());
+            //os.flush();
+            //os.close();
+            writer.flush();
+            writer.close();
+
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG", conn.getResponseMessage());
+
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public static String toJsonObjectString(Object obj) throws IllegalAccessException, JSONException {
         JSONObject jsonObject=toJsonObject(obj);
 

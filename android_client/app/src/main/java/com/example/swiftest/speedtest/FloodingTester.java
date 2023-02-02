@@ -81,8 +81,8 @@ public class FloodingTester implements BandwidthTestable{
             ipListGetter.join();
             ipList=ipListGetter.getIpList();
         }
-
-        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType);
+        String test_key=String.format("%d%s",System.currentTimeMillis(),TestUtil.getRandomString(3));
+        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType,test_key);
 
 
         FloodingTester.SimpleChecker checker = new FloodingTester.SimpleChecker(speedSample);
@@ -94,6 +94,7 @@ public class FloodingTester implements BandwidthTestable{
         ArrayList<Double> sizeRecord = new ArrayList<>();
         ArrayList<Long> timeRecord = new ArrayList<>();
         int posRecord = -1;
+        long downloadSize;
         while (true) {
             try {
                 Thread.sleep(SamplingInterval);
@@ -101,7 +102,7 @@ public class FloodingTester implements BandwidthTestable{
                 e.printStackTrace();
             }
 
-            long downloadSize = 0;
+            downloadSize=0;
             for (FloodingTester.DownloadThread t : downloadThreadMonitor.downloadThread)
                 downloadSize += t.size;
             double downloadSizeMBits = (double) (downloadSize) / 1024 / 1024 * 8;
@@ -147,7 +148,12 @@ public class FloodingTester implements BandwidthTestable{
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
         TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
-
+        TestUtil.uploadDataUsage(test_key,downloadSize);
+        long total_size=0;
+        for (FloodingTester.DownloadThread t : downloadThreadMonitor.downloadThread)
+            total_size += t.size;
+        Log.d("total_size", String.valueOf(total_size));
+        Log.d("download_size", String.valueOf(downloadSize));
         return result;
     }
 
@@ -163,17 +169,19 @@ public class FloodingTester implements BandwidthTestable{
     static class DownloadThread extends Thread {
         DatagramSocket socket;
         InetAddress address;
+        String key;
         boolean stopped;
         int port;
         int size;
 
 
-        DownloadThread(String ip, int port) {
+        DownloadThread(String ip, int port,String key) {
             try {
                 this.address = InetAddress.getByName(ip);
                 this.port = port;
                 this.stopped = false;
                 this.socket = new DatagramSocket();
+                this.key=key;
                 socket.setSoTimeout(TestTimeout);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -181,7 +189,7 @@ public class FloodingTester implements BandwidthTestable{
         }
 
         public void run() {
-            byte[] send_data = "1".getBytes();
+            byte[] send_data = key.getBytes();
             DatagramPacket send_packet = new DatagramPacket(send_data, send_data.length, address, port);
             byte[] stop_data = "stop".getBytes();
             DatagramPacket stop_packet = new DatagramPacket(stop_data, stop_data.length, address, port);
@@ -212,18 +220,20 @@ public class FloodingTester implements BandwidthTestable{
     static class DownloadThreadMonitor {
         ArrayList<FloodingTester.DownloadThread> downloadThread;
         ArrayList<String> serverIP;
+        String key;
         int warmupNum;
         int stepNum;
         int serverNum;
         int runningServerNum;
 
 
-        DownloadThreadMonitor(ArrayList<String> serverIP, String networkType) {
+        DownloadThreadMonitor(ArrayList<String> serverIP, String networkType, String key) {
+            this.key=key;
             this.serverIP = serverIP;
             this.downloadThread = new ArrayList<>();
             for (String ip : serverIP)
                 for (int i = 0; i < ThreadNum; ++i)
-                    downloadThread.add(new FloodingTester.DownloadThread(ip, 9876));
+                    downloadThread.add(new FloodingTester.DownloadThread(ip, 9876,key));
 
             this.serverNum = serverIP.size();
             this.runningServerNum = 0;

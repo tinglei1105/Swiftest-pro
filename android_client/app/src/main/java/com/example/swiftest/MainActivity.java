@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import  com.example.swiftest.speedtest.*;
 public class MainActivity extends AppCompatActivity {
@@ -103,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         // setContentView(new MyView(this));
         setContentView(R.layout.activity_main);
 

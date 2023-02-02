@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">秒测网速</string>
-
+    <string name="app_name">Swiftest</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
-
     <string name="testing">Testing</string>
+    <string name="test_result">Test result</string>
+    <string name="test_duration">Test duration</string>
+    <string name="data_usage">Data usage</string>
+    <string name="baseline">Baseline</string>
 </resources>

@@ -12,7 +12,7 @@ func main() {
 	model.InitMysql()
 	r := gin.Default()
 	register(r)
-	if err := r.Run("0.0.0.0:9000"); err != nil {
+	if err := r.Run("0.0.0.0:8080"); err != nil {
 		fmt.Println(err)
 	}
 }
