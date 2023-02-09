@@ -17,6 +17,7 @@ public class BaselineTester implements BandwidthTestable{
     private boolean stop=false;
     ArrayList<String>ipList;
     ArrayList<Double>speedSample;
+    ArrayList<TCPDownload>downloadThreads;
     static int interval=100;
     static int checkwindow=1000;
     long startTime;
@@ -70,7 +71,7 @@ public class BaselineTester implements BandwidthTestable{
         }
         startTime = System.currentTimeMillis();
         //ArrayList<String>ipList=new ArrayList<>(Collections.singleton("192.168.31.247"));
-        ArrayList<TCPDownload>downloadThreads=new ArrayList<>();
+        downloadThreads=new ArrayList<>();
         int server_num=5;
         for(int i=0;i<server_num&&i<ipList.size();i++){
             downloadThreads.add(new TCPDownload(ipList.get(i)));
@@ -88,7 +89,10 @@ public class BaselineTester implements BandwidthTestable{
         long duration =System.currentTimeMillis()-startTime;
         Log.d(TAG, String.format("download size:%d, cost:%d",total_size,duration));
         Log.d(TAG,speedSample.toString());
-        return new TestResult((double) total_size/1024/1024*8000/duration,0,0);
+        if(stop){
+            throw new InterruptedException();
+        }
+        return new TestResult((double) total_size/1024/1024*8000/duration,0,0,0);
     }
     public long getStartTime(){
         return  startTime;
@@ -96,5 +100,9 @@ public class BaselineTester implements BandwidthTestable{
     @Override
     public void stop() {
         this.stop=true;
+        if(downloadThreads==null)return;
+        for(TCPDownload download:downloadThreads){
+            download.finish();
+        }
     }
 }

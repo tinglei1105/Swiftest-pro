@@ -2,9 +2,13 @@ package com.example.swiftest.speedtest;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.TrafficStats;
 import android.os.Build;
 import android.util.Log;
+
+import androidx.core.net.TrafficStatsCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +22,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -88,20 +93,39 @@ public class FloodingTester implements BandwidthTestable{
         FloodingTester.SimpleChecker checker = new FloodingTester.SimpleChecker(speedSample);
 
         long startTime = System.currentTimeMillis();
+        int uid;
+        try {
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(
+                    context.getPackageName(), 0);
+            uid = info.uid;
+        } catch (PackageManager.NameNotFoundException e) {
+            uid = -1;
+        }
+
+        long previous=TrafficStats.getUidRxBytes(uid);
         downloadThreadMonitor.start();
         checker.start();
 
         ArrayList<Double> sizeRecord = new ArrayList<>();
         ArrayList<Long> timeRecord = new ArrayList<>();
+
         int posRecord = -1;
-        long downloadSize;
+        long downloadSize=0;
         while (true) {
             try {
                 Thread.sleep(SamplingInterval);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            if (checker.finish) {
+                Log.d("Bandwidth Test", "Test succeed.");
+                break;
+            }
 
+            if (stop) {
+                Log.d("Bandwidth Test", "Testing Stopped.");
+                break;
+            }
             downloadSize=0;
             for (FloodingTester.DownloadThread t : downloadThreadMonitor.downloadThread)
                 downloadSize += t.size;
@@ -122,10 +146,6 @@ public class FloodingTester implements BandwidthTestable{
             if (speed > downloadThreadMonitor.capability())
                 downloadThreadMonitor.add();
 
-            if (checker.finish) {
-                Log.d("Bandwidth Test", "Test succeed.");
-                break;
-            }
             if (nowTime - startTime >= TestTimeout) {
                 Log.d("Bandwidth Test", "Exceeding the time limit.");
                 break;
@@ -134,26 +154,23 @@ public class FloodingTester implements BandwidthTestable{
                 Log.d("Bandwidth Test", "Exceeding the traffic limit.");
                 break;
             }
-            if (stop) {
-                Log.d("Bandwidth Test", "Testing Stopped.");
-                break;
-            }
         }
         downloadThreadMonitor.stop();
         checker.interrupt();
         checker.join();
 
+        long after=TrafficStats.getUidRxBytes(uid);
+        double total_size=(double)(after-previous)/1024/1024;
+
         bandwidth_Mbps = checker.getSpeed();
         duration_s = (double) (System.currentTimeMillis() - startTime) / 1000;
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
-        TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB);
+        double longTail=total_size-traffic_MB;
+        TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB,longTail);
         TestUtil.uploadDataUsage(test_key,downloadSize);
-        long total_size=0;
-        for (FloodingTester.DownloadThread t : downloadThreadMonitor.downloadThread)
-            total_size += t.size;
-        Log.d("total_size", String.valueOf(total_size));
-        Log.d("download_size", String.valueOf(downloadSize));
+
+        Log.d("long tail", String.valueOf(longTail));
         return result;
     }
 

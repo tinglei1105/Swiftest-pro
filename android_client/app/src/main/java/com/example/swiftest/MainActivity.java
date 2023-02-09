@@ -6,13 +6,11 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.health.TimerStat;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.swiftest.speedtest.BandwidthTestable;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
@@ -35,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
         boolean finish;
         int current_index;
         ArrayList<Double> speedSample;
-        MyView myView;
+        SampleView myView;
 
-        myTestThread(ArrayList<Double> speedSample, MyView myView) {
+        myTestThread(ArrayList<Double> speedSample, SampleView myView) {
             this.finish = false;
             this.current_index = 0;
             this.speedSample = speedSample;
@@ -118,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         TextView baseline_text = findViewById(R.id.baseline);
         ProgressBar progressBar=findViewById(R.id.progress_bar);
         Button button = findViewById(R.id.start);
-        MyView myView = findViewById(R.id.my_view);
+        SampleView myView = findViewById(R.id.my_view);
         //bandwidthTest=new NonFloodingTester(this);
         //bandwidthTest= new FloodingTester(this);
 
@@ -194,8 +192,11 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                     } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                        baseline_text.setText("Failed");
+                        //e.printStackTrace();
+                        runOnUiThread(()->{
+                            baseline_text.setText("Failed");
+                        });
+
                     }
                     pt.finished=true;
                     List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(this);

@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class MyView extends View {
+public class SampleView extends View {
     private static final String TAG = "MyView";
     private Paint paint = new Paint();
     private Path path1 = new Path();
@@ -24,12 +24,12 @@ public class MyView extends View {
     ArrayList<Double> speedSample;
 
 
-    public MyView(Context context) {
+    public SampleView(Context context) {
         super(context);
         this.speedSample = new ArrayList<>();
     }
 
-    public MyView(Context context, @Nullable AttributeSet attrs) {
+    public SampleView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         Log.i(TAG,"2");
         //就是通过修改画笔的一些参数设置
@@ -42,13 +42,13 @@ public class MyView extends View {
 //        this.speedSample.add(0.0);
     }
 
-    public MyView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public SampleView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         Log.i(TAG,"3");
 
     }
 
-    public MyView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SampleView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         Log.i(TAG,"4");
     }

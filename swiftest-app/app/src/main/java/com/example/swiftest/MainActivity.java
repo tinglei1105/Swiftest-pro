@@ -2,16 +2,15 @@ package com.example.swiftest;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.hjq.language.MultiLanguages;
 import com.example.swiftest.databinding.ActivityMainBinding;
 
 public class MainActivity extends BaseActivity {
@@ -31,8 +30,12 @@ public class MainActivity extends BaseActivity {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_configurations)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
     }
+
+
 
 }

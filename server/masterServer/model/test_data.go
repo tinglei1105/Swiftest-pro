@@ -15,6 +15,8 @@ type TestData struct {
 	Duration float64
 	// traffic MB
 	Traffic float64
+	// long tail MB
+	LongTail float64 `gorm:"column:long_tail"`
 	//Speed sample
 	SpeedSample datatypes.JSON `json:"speed_sample"`
 	//Network Type

@@ -14,9 +14,13 @@ public class TCPDownload extends Thread{
     String ip;
     long size;
     long duration;
+    private boolean stop=false;
     String TAG="TCPDownload";
     TCPDownload(String ip){
         this.ip=ip;
+    }
+    public void finish(){
+        stop=true;
     }
     public void run() {
         size=0;
@@ -34,7 +38,7 @@ public class TCPDownload extends Thread{
 
             byte[] receive_buf = new byte[2048];
             int len;
-            while((len=is.read(receive_buf))!=-1){
+            while((len=is.read(receive_buf))!=-1 && !stop){
                 size+=len;
                 if(System.currentTimeMillis()-nowTime>timeout){
                     connection.disconnect();

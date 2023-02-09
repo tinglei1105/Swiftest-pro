@@ -43,7 +43,7 @@ public class NonFloodingTester implements BandwidthTestable{
         DownloadTest downloadTest=new DownloadTest(ipList,getNetworkType());
 
         double result=downloadTest.test();
-        return new TestResult(result,(double) (System.currentTimeMillis() - startTime) / 1000,downloadTest.getTrafficMB());
+        return new TestResult(result,(double) (System.currentTimeMillis() - startTime) / 1000,downloadTest.getTrafficMB(),0);
 
 
     }

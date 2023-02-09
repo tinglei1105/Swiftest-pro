@@ -47,6 +47,7 @@ public class TestUtil {
             jsonParam.put("cell_info",toJsonArray(networkInfo.cellInfo).toString());
             jsonParam.put("wifi_info",toJsonObject(networkInfo.wifiInfo).toString());
             jsonParam.put("baseline",baseline.bandwidth);
+            jsonParam.put("long_tail",result.longTail);
             //jsonParam.put("wifi_info","{\"wifi_SSID\":\"\\\"程搓搓和邱摆摆\\\"\"}");
             Log.i("JSON", jsonParam.toString());
             DataOutputStream os = new DataOutputStream(conn.getOutputStream());

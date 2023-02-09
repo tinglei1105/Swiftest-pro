@@ -10,11 +10,14 @@ public class TestResult {
     public double duration;
     // traffic MB
     public double traffic;
+    // long tail MB
+    public double longTail;
 
-    public TestResult(double bandwidth, double duration, double traffic) {
+    public TestResult(double bandwidth, double duration, double traffic, double longTail) {
         this.bandwidth = bandwidth;
         this.duration = duration;
         this.traffic = traffic;
+        this.longTail = longTail;
     }
 
     public TestResult() {
