@@ -28,18 +28,18 @@ public class MainActivity extends AppCompatActivity {
     TestResult result;
     progressThread pt;
     //for test
-    class myTestThread extends Thread {
+    class DrawSampleThread extends Thread {
 //        ArrayList<Double> speedSample;
         boolean finish;
         int current_index;
         ArrayList<Double> speedSample;
-        SampleView myView;
+        SampleView sampleView;
 
-        myTestThread(ArrayList<Double> speedSample, SampleView myView) {
+        DrawSampleThread(ArrayList<Double> speedSample, SampleView myView) {
             this.finish = false;
             this.current_index = 0;
             this.speedSample = speedSample;
-            this.myView = myView;
+            this.sampleView = myView;
         }
 
         public void run() {
@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
                     String result = sb.toString();
 
 //                    Log.d("!!!!!!!!!!!!!!!!! size:", Integer.toString(this.speedSample.size()));
-                    this.myView.setSpeedSamples(speedSample);
-                    this.myView.invalidate();
+                    this.sampleView.setSpeedSamples(speedSample);
+                    this.sampleView.invalidate();
                     if(!isTesting) break;
                 } catch (InterruptedException e) {
                     Log.d("test_thread", "bug");
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 traffic_text.setText(R.string.testing);
 
 
-                    myTestThread mtt = new myTestThread(bandwidthTest.speedSample, myView);
+                    DrawSampleThread mtt = new DrawSampleThread(bandwidthTest.speedSample, myView);
                     mtt.start();
 
                 Thread test_thread= new Thread(() -> {
