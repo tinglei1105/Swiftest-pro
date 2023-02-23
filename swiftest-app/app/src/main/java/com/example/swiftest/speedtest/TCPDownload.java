@@ -25,7 +25,7 @@ public class TCPDownload extends Thread{
             URL url = new URL("http://" + ip + ":8080/static/GB");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            int timeout=10000;
+            int timeout=11000;
             connection.setConnectTimeout(timeout);
             connection.setReadTimeout(timeout);
             long nowTime = System.currentTimeMillis();

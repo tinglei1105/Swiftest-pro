@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.FastTestFragment"
     android:animateLayoutChanges="true"
     android:orientation="vertical">
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <com.example.swiftest.ui.SampleView
         android:id="@+id/sample_view"
         android:layout_width="wrap_content"
         android:layout_height="400dp"
+        android:layout_marginTop="10dp"
         />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/scene_root"
         android:animateLayoutChanges="true"
         android:layout_marginTop="20dp"
+        android:paddingBottom="80dp"
         >
         <TableLayout
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:id="@+id/result_layout"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_centerHorizontal="true"
             android:stretchColumns="0"
+
             >
             <TableRow>
 
@@ -44,10 +50,15 @@
                     android:id="@+id/bandwidth"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.00  Mbps"
+                    android:text="0.00"
                     style="@style/result_text"
 
                     />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/result_text"
+                    android:text=" Mbps"/>
         </TableRow>
 
 
@@ -63,10 +74,15 @@
                     android:id="@+id/duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.00  s"
+                    android:text="0.00"
                     style="@style/result_text"
-
                     />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/result_text"
+                android:text=" s"/>
         </TableRow>
 
 
@@ -81,9 +97,14 @@
                     android:id="@+id/traffic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.00  MB"
+                    android:text="0.00"
                     style="@style/result_text"
                     />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/result_text"
+                android:text=" MB"/>
         </TableRow>
         </TableLayout>
         <Button
@@ -96,5 +117,5 @@
             android:layout_marginTop="20dp"
             />
     </RelativeLayout>
-
 </LinearLayout>
+</ScrollView>

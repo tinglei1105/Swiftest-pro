@@ -8,16 +8,21 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class BaselineTester implements BandwidthTestable{
     Context context;
     String TAG="BaselineTester";
     private boolean stop=false;
     ArrayList<String>ipList;
-    ArrayList<Double>speedSample;
+    public ArrayList<Double>speedSample;
     ArrayList<TCPDownload>downloadThreads;
-    static int interval=100;
-    static int checkwindow=1000;
+    static int interval=50;
+    static int checkwindow=2000;
     long startTime;
     public BaselineTester(Context context,ArrayList<String>ipList){
         this.context=context;
@@ -28,6 +33,7 @@ public class BaselineTester implements BandwidthTestable{
         public ArrayList<Double>speedSample;
         public ArrayList<TCPDownload>downloads;
         public ArrayList<Double>sizeRecords;
+
         double preSize=0;
         public SampleThread(ArrayList<Double> speedSample,ArrayList<TCPDownload>downloads){
             this.speedSample=speedSample;
@@ -50,6 +56,9 @@ public class BaselineTester implements BandwidthTestable{
                     speedSample.add((sizeRecords.get(sz-1)-sizeRecords.get(sz-i))/checkwindow*1000*8/1024/1024);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    for(TCPDownload downloadThread:downloads){
+                        downloadThread.finish();
+                    }
                     return;
                 }
             }
@@ -77,20 +86,31 @@ public class BaselineTester implements BandwidthTestable{
         }
         SampleThread sampleThread=new SampleThread(speedSample,downloadThreads);
         sampleThread.start();
+        TimerTask timerTask=new TimerTask() {
+            @Override
+            public void run() {
+                sampleThread.interrupt();
+            }
+        };
+        new Timer().schedule(timerTask,10000);
 
         int total_size=0;
         for(int i=0;i<server_num&&i<ipList.size();i++){
+            //downloadThreads.get(i).finish();
             downloadThreads.get(i).join();
             total_size+=downloadThreads.get(i).size;
         }
-        sampleThread.interrupt();
+        //sampleThread.interrupt();
         long duration =System.currentTimeMillis()-startTime;
         Log.d(TAG, String.format("download size:%d, cost:%d",total_size,duration));
         Log.d(TAG,speedSample.toString());
         if(stop){
             throw new InterruptedException();
         }
-        return new TestResult((double) total_size/1024/1024*8000/duration,0,0,0);
+        stop=true;
+        ArrayList<Double> result_list=new ArrayList<>(speedSample.subList(0,speedSample.size()));
+        Collections.sort(result_list);
+        return new TestResult(result_list.get(result_list.size()/2),0,0,0);
     }
     public long getStartTime(){
         return  startTime;
@@ -102,5 +122,9 @@ public class BaselineTester implements BandwidthTestable{
         for(TCPDownload download:downloadThreads){
             download.finish();
         }
+    }
+
+    public boolean isStop(){
+        return stop;
     }
 }

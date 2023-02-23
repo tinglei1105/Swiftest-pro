@@ -1,9 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.BaselineTestFragment">
+    tools:context=".ui.home.BaselineTestFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
 
+        <RelativeLayout
+            android:id="@+id/dlArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentTop="true">
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/dlLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="@string/test_dl"
+                android:textColor="@color/textColor"
+                android:textSize="@dimen/gaugeLabel" />
+
+            <com.example.swiftest.ui.GaugeView
+                android:id="@+id/dlGauge"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/gaugeSize"
+                android:layout_below="@id/dlLabel"
+                android:layout_centerHorizontal="true"
+                app:gauge_angles="270"
+                app:gauge_backgroundColor="@color/gaugesBackground"
+                app:gauge_fillColor="@color/dlGauge"
+                app:gauge_startAngle="135"
+                app:gauge_strokeWidth="@dimen/gaugeThickness" />
+
+            <ProgressBar
+                android:id="@+id/dlProgress"
+                style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+                android:layout_width="@dimen/progressSize"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dlGauge"
+                android:layout_centerHorizontal="true"
+                android:backgroundTint="@color/progressBackground"
+                android:max="100"
+                android:progressTint="@color/progressColor" />
+
+            <TextView
+                android:id="@+id/dlText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:fontFamily="sans-serif-condensed-light"
+                android:scrollHorizontally="false"
+                android:singleLine="true"
+                android:text="DLOAD"
+                android:textColor="@color/dlText"
+                android:textSize="@dimen/gaugeText"
+                android:typeface="sans" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/dlGauge"
+                android:layout_centerHorizontal="true"
+                android:text="@string/test_speedMeasure"
+                android:textSize="@dimen/speedMeasure" />
+        </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_start"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/dlArea"
+        />
+    </RelativeLayout>
+</RelativeLayout>

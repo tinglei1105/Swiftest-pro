@@ -11,6 +11,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import com.example.swiftest.R;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -35,7 +37,7 @@ public class SampleView extends View {
         //就是通过修改画笔的一些参数设置
         paint = new Paint(); //新建一个画笔对象
         paint.setAntiAlias(true);//抗锯齿功能
-        paint.setColor(Color.BLACK);  //设置画笔颜色
+        paint.setColor(getResources().getColor(R.color.sampleColor));  //设置画笔颜色
         paint.setStyle(Paint.Style.STROKE);//设置填充样式 中空
         paint.setStrokeWidth(10);//设置画笔宽度 ，单位px
         this.speedSample = new ArrayList<>();
@@ -63,7 +65,7 @@ public class SampleView extends View {
         super.onDraw(canvas);
         //canvas.drawColor();
         paint.setAntiAlias(true);//抗锯齿
-        paint.setColor(Color.BLACK);//画笔颜色
+        paint.setColor(getResources().getColor(R.color.sampleColor));//画笔颜色
         paint.setStyle(Paint.Style.FILL);//描边模
         paint.setStrokeWidth(4f);//设置画笔粗细度
         paint.setTextSize(52f);
@@ -106,7 +108,7 @@ public class SampleView extends View {
         canvas.drawLine(x_max/4*3+x_min/4, y_max, x_max/4*3+x_min/4, y_max-tick_len, paint);
         canvas.drawLine(x_max/2+x_min/2, y_max, x_max/2+x_min/2, y_max-tick_len, paint);
         canvas.drawLine(x_max/4+x_min/4*3, y_max, x_max/4+x_min/4*3, y_max-tick_len, paint);
-        paint.setTextSize(60f);
+        paint.setTextSize(canvas_width/20);
         canvas.drawText("Time (s)", x_max-60, y_max+120, paint);
         paint.setTextSize(40f);
         canvas.drawText("0", x_min-tick_len, y_max+50, paint);
@@ -121,9 +123,9 @@ public class SampleView extends View {
         canvas.drawLine(x_min, y_min/2 + y_max/2, x_min+tick_len, y_min/2 + y_max/2, paint);
         canvas.drawLine(x_min, y_min/4 + y_max/4*3, x_min+tick_len, y_min/4 + y_max/4*3, paint);
 
-        paint.setTextSize(60f);
-        canvas.drawText("Bandwidth", x_min+60, y_min-100, paint);
-        canvas.drawText("(Mbps)", x_min+60, y_min-30, paint);
+        paint.setTextSize(canvas_width/20);
+        canvas.drawText("Bandwidth", x_min+canvas_width/20, y_min-canvas_width/10, paint);
+        canvas.drawText("(Mbps)", x_min+canvas_width/20, y_min-canvas_width/20, paint);
         paint.setTextSize(40f);
         canvas.drawText("0", x_min-tick_len, y_max+50, paint);
         canvas.drawText("0.5", x_max/4+x_min/4*3, y_max+50, paint);
@@ -179,9 +181,14 @@ public class SampleView extends View {
             }
             double tmp_max = 0;
             double tmp_min = this.speedSample.get(this.speedSample.size()-1);
+            int valid_count=0;
             for (int i = this.speedSample.size()-1; i >= this.speedSample.size()-10; i--) {
                 double tmp = this.speedSample.get(i);
-                rect_midheight += tmp;
+                if(tmp>0){
+                    rect_midheight += tmp;
+                    valid_count++;
+                }
+
                 if(tmp_max < tmp){
                     tmp_max = tmp;
                 }
@@ -189,22 +196,26 @@ public class SampleView extends View {
                     tmp_min = tmp;
                 }
             }
-            rect_midheight /= window_size;
+            Log.d(TAG, String.format("tmp min: %f, max: %f",tmp_min,tmp_max));
+            rect_midheight /= valid_count;
             paint.setColor(Color.BLUE);
             paint.setStyle(Paint.Style.STROKE);//描边模式
-            if(this.speedSample.size() <= this.sample_num - 10){
-                canvas.drawRect(x_min + (x_max-x_min) * (rect_left+1) / sample_num,
-                        (float) (y_max - (y_max-y_min)*(rect_midheight*0.93/(float) my_speed_max)),
-                        x_min + (x_max-x_min) * (rect_right+1) / sample_num,
-                        (float) (y_max - (y_max-y_min)*(rect_midheight*1.07/(float) my_speed_max)),
-                        paint);
-            }else{
-                canvas.drawRect(x_min + (x_max-x_min) * (rect_left+1) / sample_num,
-                        (float) (y_max - (y_max-y_min)*(tmp_min/(float) my_speed_max)),
-                        x_min + (x_max-x_min) * (rect_right+1) / sample_num,
-                        (float) (y_max - (y_max-y_min)*(tmp_max/(float) my_speed_max)),
-                        paint);
-            }
+            canvas.drawRect(x_min + (x_max-x_min) * (rect_left+1) / sample_num,
+            (float) (y_max - (y_max-y_min)*(rect_midheight*0.93/(float) my_speed_max)),
+                    x_min + (x_max-x_min) * (rect_right+1) / sample_num,
+                    (float) (y_max - (y_max-y_min)*(rect_midheight*1.07/(float) my_speed_max)),
+                    paint);
+//            if(this.speedSample.size() <= this.sample_num - 10){
+//
+//            }else{
+//                float top=(float) (y_max - (y_max-y_min)*(my_speed_max-tmp_min)/(float) my_speed_max);
+//                Log.d(TAG, String.format("top: %f, y_max: %f",top,y_max));
+//                canvas.drawRect(x_min + (x_max-x_min) * (rect_left+1) / sample_num,
+//                        (float) (y_max - (y_max-y_min)*((my_speed_max-tmp_min)/(float) my_speed_max)),
+//                        x_min + (x_max-x_min) * (rect_right+1) / sample_num,
+//                        (float) (y_max - (y_max-y_min)*((my_speed_max-tmp_max)/(float) my_speed_max)),
+//                        paint);
+//            }
 
 
             paint.setStyle(Paint.Style.FILL);//描边模

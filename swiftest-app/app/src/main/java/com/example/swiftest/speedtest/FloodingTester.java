@@ -8,6 +8,8 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.util.Log;
 
+import com.hjq.language.MultiLanguages;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -15,6 +17,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class FloodingTester implements BandwidthTestable{
     Context context;
@@ -73,13 +76,13 @@ public class FloodingTester implements BandwidthTestable{
             ipListGetter.join();
             ipList=ipListGetter.getIpList();
         }
-        String test_key=String.format("%d%s",System.currentTimeMillis(),TestUtil.getRandomString(3));
+        String test_key=String.format(MultiLanguages.getAppLanguage(),
+                "%d%s",System.currentTimeMillis(),TestUtil.getRandomString(3));
         DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType,test_key);
 
 
         SimpleChecker checker = new SimpleChecker(speedSample);
 
-        long startTime = System.currentTimeMillis();
         int uid;
         try {
             ApplicationInfo info = context.getPackageManager().getApplicationInfo(
@@ -88,7 +91,7 @@ public class FloodingTester implements BandwidthTestable{
         } catch (PackageManager.NameNotFoundException e) {
             uid = -1;
         }
-
+        long startTime = System.currentTimeMillis();
         long previous=TrafficStats.getUidRxBytes(uid);
         downloadThreadMonitor.start();
         checker.start();
@@ -142,6 +145,7 @@ public class FloodingTester implements BandwidthTestable{
                 break;
             }
         }
+        duration_s = (double) (System.currentTimeMillis() - startTime) / 1000;
         downloadThreadMonitor.stop();
         checker.interrupt();
         checker.join();
@@ -150,13 +154,12 @@ public class FloodingTester implements BandwidthTestable{
         double total_size=(double)(after-previous)/1024/1024;
 
         bandwidth_Mbps = checker.getSpeed();
-        duration_s = (double) (System.currentTimeMillis() - startTime) / 1000;
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
         double longTail=total_size-traffic_MB;
         TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB,longTail);
         TestUtil.uploadDataUsage(test_key,downloadSize);
-
+        Log.d("sample size", String.valueOf(speedSample.size()));
         Log.d("long tail", String.valueOf(longTail));
         return result;
     }

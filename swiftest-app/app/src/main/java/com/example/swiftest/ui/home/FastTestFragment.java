@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class FastTestFragment extends Fragment {
 
@@ -50,7 +51,7 @@ public class FastTestFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentFastTestBinding.inflate(inflater, container, false);
-        LinearLayout root = binding.getRoot();
+        View root = binding.getRoot();
 
         sampleView = binding.sampleView;
         //root.removeView(sampleView);
@@ -80,7 +81,7 @@ public class FastTestFragment extends Fragment {
                             e.printStackTrace();
                         }
                         isTesting = false;
-                        getActivity().runOnUiThread(() -> {
+                        requireActivity().runOnUiThread(() -> {
                             btn.setText(R.string.text_start);
                         });
 
@@ -103,15 +104,12 @@ public class FastTestFragment extends Fragment {
         String duration = String.format(Locale.CHINA, "%.2f", result.duration);
         String traffic = String.format(Locale.CHINA, "%.2f", result.traffic);
 
-        String finalBandwidth = bandwidth + "  Mbps";
-        String finalDuration = duration + "  s";
-        String finalTraffic = traffic + "  MB";
 
         getActivity().runOnUiThread(() -> {
 
-            binding.bandwidth.setText(finalBandwidth);
-            binding.duration.setText(finalDuration);
-            binding.traffic.setText(finalTraffic);
+            binding.bandwidth.setText(bandwidth);
+            binding.duration.setText(duration);
+            binding.traffic.setText(traffic);
 
         });
     }
