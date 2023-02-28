@@ -1,0 +1,18 @@
+bp_sleep: 200
+download_size_sleep: 50
+time_window: 2000
+test_timeout: 10000
+get_info_interval: 250
+max_traffic_use_4_g: 2000
+max_traffic_use_5_g: 2000
+max_traffic_use_wifi: 2000
+max_traffic_use_others: 2000
+k_similar: 5
+threshold: 0.95
+max_bandwidth: 200
+servers:
+ - 81.70.55.189
+ - 81.70.193.140
+ - 110.42.169.86
+ - 121.5.26.137
+ - 124.223.35.212

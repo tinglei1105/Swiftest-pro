@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Swiftest</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_configurations">Configurations</string>
+    <string name="lan_chinese_simplified">Chinese(simplified)</string>
+    <string name="lan_english">English</string>
+    <string name="option_language">Language</string>
+    <string name="tab_fast_test">Fast Test</string>
+    <string name="tab_baseline_test">Baseline Test</string>
+    <string name="text_start">Start</string>
+    <string name="text_stop">Stop</string>
+    <string name="text_test_result">Test result</string>
+    <string name="text_test_duration">Test duration</string>
+    <string name="text_data_usage">Data usage</string>
+    <string name="text_testing">Testing</string>
+    <string name="test_dl">Download</string>
+    <string name="test_speedMeasure" translatable="false">Mbps</string>
+</resources>

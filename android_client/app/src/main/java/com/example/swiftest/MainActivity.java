@@ -3,44 +3,43 @@ package com.example.swiftest;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
-
+import  com.example.swiftest.speedtest.*;
 public class MainActivity extends AppCompatActivity {
-    BandwidthTest bandwidthTest = new BandwidthTest(this);
     boolean isTesting = false;
-
+    FloodingTester bandwidthTest;
+    BaselineTester baselineTester;
+    TestResult baseline;
+    TestResult result;
+    progressThread pt;
     //for test
-    class myTestThread extends Thread {
+    class DrawSampleThread extends Thread {
 //        ArrayList<Double> speedSample;
         boolean finish;
         int current_index;
         ArrayList<Double> speedSample;
-        MyView myView;
+        SampleView sampleView;
 
-        myTestThread(ArrayList<Double> speedSample, MyView myView) {
+        DrawSampleThread(ArrayList<Double> speedSample, SampleView myView) {
             this.finish = false;
             this.current_index = 0;
             this.speedSample = speedSample;
-            this.myView = myView;
+            this.sampleView = myView;
         }
 
         public void run() {
@@ -57,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
                     String result = sb.toString();
 
 //                    Log.d("!!!!!!!!!!!!!!!!! size:", Integer.toString(this.speedSample.size()));
-                    this.myView.setSpeedSamples(speedSample);
-                    this.myView.invalidate();
+                    this.sampleView.setSpeedSamples(speedSample);
+                    this.sampleView.invalidate();
                     if(!isTesting) break;
                 } catch (InterruptedException e) {
                     Log.d("test_thread", "bug");
@@ -69,10 +68,39 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    class progressThread extends Thread{
+        ProgressBar progressBar;
+        BaselineTester baselineTester;
+        public boolean finished=false;
+        progressThread(ProgressBar progressBar,BaselineTester baselineTester){
+            this.progressBar=progressBar;
+            this.baselineTester=baselineTester;
+        }
+        @Override
+        public void run() {
+            if(baselineTester==null)return;
+            while(!finished){
+                //Log.d("progress", String.format("time :%d",System.currentTimeMillis()-baselineTester.getStartTime()));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setProgress((int) (System.currentTimeMillis()-baselineTester.getStartTime()));
+                    }
+                });
+                try {
+                    sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         // setContentView(new MyView(this));
         setContentView(R.layout.activity_main);
 
@@ -85,37 +113,60 @@ public class MainActivity extends AppCompatActivity {
         TextView bandwidth_text = findViewById(R.id.bandwidth);
         TextView duration_text = findViewById(R.id.duration);
         TextView traffic_text = findViewById(R.id.traffic);
+        TextView baseline_text = findViewById(R.id.baseline);
+        ProgressBar progressBar=findViewById(R.id.progress_bar);
         Button button = findViewById(R.id.start);
-        MyView myView = findViewById(R.id.my_view);
+        SampleView myView = findViewById(R.id.my_view);
+        //bandwidthTest=new NonFloodingTester(this);
+        //bandwidthTest= new FloodingTester(this);
+
 
         button.setOnClickListener(view -> {
             if (isTesting) {
                 isTesting = false;
                 button.setText(R.string.start);
                 bandwidthTest.stop();
+                baselineTester.stop();
+                pt.finished=true;
+                progressBar.setProgress(0);
             } else {
                 isTesting = true;
                 //清空
-                bandwidthTest.speedSample.clear();
-
+                // bandwidthTest.speedSample.clear();
+                progressBar.setProgress(0);
                 button.setText(R.string.stop);
+                baseline_text.setText("Testing");
+                IPListGetter ipListGetter=new IPListGetter();
+                ipListGetter.start();
+                try {
+                    ipListGetter.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                baselineTester=new BaselineTester(this,ipListGetter.getIpList());
+                pt=new progressThread(progressBar,baselineTester);
+                pt.start();
+
+
+                bandwidthTest=new FloodingTester(this,ipListGetter.getIpList());
                 bandwidth_text.setText(R.string.testing);
                 duration_text.setText(R.string.testing);
                 traffic_text.setText(R.string.testing);
 
-                myTestThread mtt = new myTestThread(bandwidthTest.speedSample, myView);
-                mtt.start();
 
-                new Thread(() -> {
+                    DrawSampleThread mtt = new DrawSampleThread(bandwidthTest.speedSample, myView);
+                    mtt.start();
+
+                Thread test_thread= new Thread(() -> {
                     String bandwidth = "0";
                     String duration = "0";
                     String traffic = "0";
+
                     try {
-//                        bandwidthTest.SpeedTest();
-                        bandwidthTest.SpeedTestNew(); // UDP test
-                        bandwidth = bandwidthTest.bandwidth_Mbps;
-                        duration = bandwidthTest.duration_s;
-                        traffic = bandwidthTest.traffic_MB;
+                        result=bandwidthTest.test();
+                        bandwidth = String.format(Locale.CHINA,"%.2f",result.bandwidth);
+                        duration = String.format(Locale.CHINA,"%.2f",result.duration);
+                        traffic = String.format(Locale.CHINA,"%.2f",result.traffic);
                         // network = bandwidthTest.networkType;
                         bandwidthTest.stop();
                     } catch (Exception e) {
@@ -126,17 +177,43 @@ public class MainActivity extends AppCompatActivity {
                     String finalTraffic = traffic + "  MB";
                     // String finalNetwork = network;
                     runOnUiThread(() -> {
-                        isTesting = false;
-                        button.setText(R.string.start);
+
                         bandwidth_text.setText(finalBandwidth);
                         duration_text.setText(finalDuration);
                         traffic_text.setText(finalTraffic);
                         // network_text.setText(finalNetwork);
                     });
-                }).start();
-                //for test
+
+                    try {
+
+                        baseline=baselineTester.test();
+                        runOnUiThread(()->{
+                            baseline_text.setText(String.format(Locale.CHINA,"%.2f Mbps",baseline.bandwidth));
+                        });
+
+                    } catch (IOException | InterruptedException e) {
+                        //e.printStackTrace();
+                        runOnUiThread(()->{
+                            baseline_text.setText("Failed");
+                        });
+
+                    }
+                    pt.finished=true;
+                    List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(this);
+                    MyNetworkInfo.WifiInfo wifiInfo = NetworkUtil.getWifiInfo(this);
+                    //cellInfo.add(new MyNetworkInfo.CellInfo("",new MyNetworkInfo.CellInfo.CellIdentityCdma("","","","",""),null));
+                    Log.d("cell info",cellInfo.toString());
+                    Log.d("wifi info",wifiInfo.toString());
+                    TestUtil.uploadTestResult(result,baseline,bandwidthTest.speedSample,new MyNetworkInfo(String.valueOf(Build.VERSION.SDK_INT),NetworkUtil.getNetworkType(this),cellInfo,wifiInfo));
+                    runOnUiThread(()->{
+                        isTesting = false;
+                        button.setText(R.string.start);
+                    });
+                });
+                test_thread.start();
 
             }
         });
+
     }
 }

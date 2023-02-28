@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">秒测网速</string>
+    <string name="start">开始</string>
+    <string name="stop">停止</string>
+    <string name="testing">测试中</string>
+    <string name="test_result">秒测结果</string>
+    <string name="test_duration">测试时间</string>
+    <string name="data_usage">数据使用</string>
+    <string name="baseline">基准测试</string>
+</resources>
