@@ -34,6 +34,8 @@ android {
 dependencies {
     // 语种切换框架：https://github.com/getActivity/MultiLanguages
     implementation 'com.github.getActivity:MultiLanguages:8.0'
+    // 工具 https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/README-CN.md
+    implementation 'com.blankj:utilcodex:1.31.1'
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

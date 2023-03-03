@@ -18,7 +18,7 @@ import java.util.Collections;
 
 public class IPListGetter extends Thread{
     public ArrayList<String> ipList;
-
+    public String client_ip;
     final static private int InitTimeout = 500;
     final static private int MinFinishedNum = 5;
     final static private String MasterIP = "124.223.41.138";
@@ -49,6 +49,7 @@ public class IPListGetter extends Thread{
 
                 int server_num = jsonObject.getInt("server_num");
                 JSONArray jsonArray = jsonObject.getJSONArray("ip_list");
+                client_ip=jsonObject.getString("client_ip");
                 ArrayList<String> ipList = new ArrayList<>();
                 for (int i = 0; i < server_num; ++i)
                     ipList.add(jsonArray.getString(i));

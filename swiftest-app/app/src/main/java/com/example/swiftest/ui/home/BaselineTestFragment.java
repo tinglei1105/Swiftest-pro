@@ -47,14 +47,8 @@ public class BaselineTestFragment extends Fragment {
         btn.setOnClickListener(v->{
             if(!isTesting){
                 btn.setText(R.string.text_stop);
-                IPListGetter ipListGetter=new IPListGetter();
-                ipListGetter.start();
-                try {
-                    ipListGetter.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                baselineTester=new BaselineTester(getContext(),ipListGetter.getIpList());
+
+                baselineTester=new BaselineTester(getContext());
                 DrawGuageThread drawGuageThread= new DrawGuageThread(binding.dlGauge,binding.dlText, baselineTester,binding.dlProgress);
                 Thread testThread=new Thread(new Runnable() {
                     @Override
