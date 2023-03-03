@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import com.blankj.utilcode.util.NetworkUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +26,10 @@ public class BaselineTester implements BandwidthTestable{
     static int interval=50;
     static int checkwindow=2000;
     long startTime;
-    public BaselineTester(Context context,ArrayList<String>ipList){
+    String networkType;
+    String client_ip;
+    public BaselineTester(Context context){
         this.context=context;
-        this.ipList=ipList;
         speedSample=new ArrayList<>();
     }
     static class SampleThread extends Thread{
@@ -77,6 +80,12 @@ public class BaselineTester implements BandwidthTestable{
             }
         }
         startTime = System.currentTimeMillis();
+        networkType = NetworkUtil.getNetworkType(context);
+        IPListGetter ipListGetter = new IPListGetter();
+        ipListGetter.start();
+        ipListGetter.join();
+        ipList = ipListGetter.getIpList();
+        client_ip = ipListGetter.client_ip;
         //ArrayList<String>ipList=new ArrayList<>(Collections.singleton("192.168.31.247"));
         downloadThreads=new ArrayList<>();
         int server_num=5;
@@ -110,7 +119,13 @@ public class BaselineTester implements BandwidthTestable{
         stop=true;
         ArrayList<Double> result_list=new ArrayList<>(speedSample.subList(0,speedSample.size()));
         Collections.sort(result_list);
-        return new TestResult(result_list.get(result_list.size()/2),0,0,0);
+        TestResult result = TestResult.builder().withBandwidth(result_list.get(result_list.size()/2)).
+                withNetworkType(networkType).
+                withNetworkOperator(NetworkUtils.getNetworkOperatorName()).
+                withPrivateIP(NetworkUtils.getIPAddress(true)).
+                withPublicIP(client_ip).build();
+        Log.d(TAG, result.toString());
+        return result;
     }
     public long getStartTime(){
         return  startTime;

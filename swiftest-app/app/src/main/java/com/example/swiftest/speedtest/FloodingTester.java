@@ -8,6 +8,7 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.util.Log;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.hjq.language.MultiLanguages;
 
 import java.io.IOException;
@@ -17,46 +18,37 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-public class FloodingTester implements BandwidthTestable{
-    Context context;
-    private boolean stop = true;
-    public String networkType;
-    public List<MyNetworkInfo.CellInfo> cellInfo;
-    public MyNetworkInfo.WifiInfo wifiInfo;
+public class FloodingTester implements BandwidthTestable {
     //final static private String MasterIP = "192.168.31.247";
     final static private String MasterIP = "124.223.41.138";
     //final static private String MasterIP = "118.31.164.30";
+    public static String TAG="FloodingTester";
     final static private int ThreadNum = 4;
     final static private int ServerCapability = 100;            // 100Mbps per server
-
     final static private int TestTimeout = 2000;                // Maximum test duration
     final static private int MaxTrafficUse = 200;               // Maximum traffic limit
-
     final static private int SamplingInterval = 20;             // Time interval for Sampling
     final static private int SamplingWindow = 100;               // Sampling overlap
-
     final static private int CheckerSleep = 50;                 // Time interval between checks
     final static private int CheckerWindowSize = 10;            // SimpleChecker window size
     final static private int CheckerSelectedSize = 8;           // SimplerChecker selected size
     final static private double CheckerThreshold = 0.08;        // threshold
     final static private int CheckerTimeoutWindow = 50;         // Window size when overtime
-
+    public String networkType;
+    public List<MyNetworkInfo.CellInfo> cellInfo;
+    public MyNetworkInfo.WifiInfo wifiInfo;
     public double bandwidth_Mbps;
-    public double duration_s ;
-    public double traffic_MB ;
-
+    public double duration_s;
+    public double traffic_MB;
+    public String client_ip;
     public ArrayList<Double> speedSample = new ArrayList<>();
-    private ArrayList<String>ipList;
+    Context context;
+    private boolean stop = true;
+    private ArrayList<String> ipList;
 
-    public FloodingTester(Context context){
+    public FloodingTester(Context context) {
         this.context = context;
-    }
-
-    public FloodingTester(Context context,ArrayList<String>ipList){
-        this.context=context;
-        this.ipList=ipList;
     }
 
     @Override
@@ -70,15 +62,14 @@ public class FloodingTester implements BandwidthTestable{
         }
 
         networkType = NetworkUtil.getNetworkType(context);
-        if(ipList==null){
-            IPListGetter ipListGetter = new IPListGetter();
-            ipListGetter.start();
-            ipListGetter.join();
-            ipList=ipListGetter.getIpList();
-        }
-        String test_key=String.format(MultiLanguages.getAppLanguage(),
-                "%d%s",System.currentTimeMillis(),TestUtil.getRandomString(3));
-        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType,test_key);
+        IPListGetter ipListGetter = new IPListGetter();
+        ipListGetter.start();
+        ipListGetter.join();
+        ipList = ipListGetter.getIpList();
+        client_ip = ipListGetter.client_ip;
+        String test_key = String.format(MultiLanguages.getAppLanguage(),
+                "%d%s", System.currentTimeMillis(), TestUtil.getRandomString(3));
+        DownloadThreadMonitor downloadThreadMonitor = new DownloadThreadMonitor(ipList, networkType, test_key);
 
 
         SimpleChecker checker = new SimpleChecker(speedSample);
@@ -92,7 +83,7 @@ public class FloodingTester implements BandwidthTestable{
             uid = -1;
         }
         long startTime = System.currentTimeMillis();
-        long previous=TrafficStats.getUidRxBytes(uid);
+        long previous = TrafficStats.getUidRxBytes(uid);
         downloadThreadMonitor.start();
         checker.start();
 
@@ -100,7 +91,7 @@ public class FloodingTester implements BandwidthTestable{
         ArrayList<Long> timeRecord = new ArrayList<>();
 
         int posRecord = -1;
-        long downloadSize=0;
+        long downloadSize = 0;
         while (true) {
             try {
                 Thread.sleep(SamplingInterval);
@@ -116,7 +107,7 @@ public class FloodingTester implements BandwidthTestable{
                 Log.d("Bandwidth Test", "Testing Stopped.");
                 break;
             }
-            downloadSize=0;
+            downloadSize = 0;
             for (DownloadThread t : downloadThreadMonitor.downloadThread)
                 downloadSize += t.size;
             double downloadSizeMBits = (double) (downloadSize) / 1024 / 1024 * 8;
@@ -150,17 +141,24 @@ public class FloodingTester implements BandwidthTestable{
         checker.interrupt();
         checker.join();
 
-        long after=TrafficStats.getUidRxBytes(uid);
-        double total_size=(double)(after-previous)/1024/1024;
+        long after = TrafficStats.getUidRxBytes(uid);
+        double total_size = (double) (after - previous) / 1024 / 1024;
 
         bandwidth_Mbps = checker.getSpeed();
         traffic_MB = sizeRecord.get(sizeRecord.size() - 1) / 8;
 
-        double longTail=total_size-traffic_MB;
-        TestResult result = new TestResult(bandwidth_Mbps,duration_s,traffic_MB,longTail);
-        TestUtil.uploadDataUsage(test_key,downloadSize);
-        Log.d("sample size", String.valueOf(speedSample.size()));
-        Log.d("long tail", String.valueOf(longTail));
+        double longTail = total_size - traffic_MB;
+
+        TestResult result = TestResult.builder().withBandwidth(bandwidth_Mbps).
+                withDuration(duration_s).withTraffic(traffic_MB).withLongTail(longTail).
+                withNetworkType(networkType).
+                withNetworkOperator(NetworkUtils.getNetworkOperatorName()).
+                withPrivateIP(NetworkUtils.getIPAddress(true)).
+                withPublicIP(client_ip).build();
+
+        TestUtil.uploadDataUsage(test_key, downloadSize);
+        Log.d(TAG, result.toString());
+
         return result;
     }
 
@@ -168,8 +166,6 @@ public class FloodingTester implements BandwidthTestable{
     public void stop() {
         stop = true;
     }
-
-
 
 
     // 发送一个包后持续接收包，直到stopped被标记为true
@@ -182,13 +178,13 @@ public class FloodingTester implements BandwidthTestable{
         int size;
 
 
-        DownloadThread(String ip, int port,String key) {
+        DownloadThread(String ip, int port, String key) {
             try {
                 this.address = InetAddress.getByName(ip);
                 this.port = port;
                 this.stopped = false;
                 this.socket = new DatagramSocket();
-                this.key=key;
+                this.key = key;
                 socket.setSoTimeout(TestTimeout);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -223,6 +219,7 @@ public class FloodingTester implements BandwidthTestable{
             }
         }
     }
+
     // 包含一系列DownloadThread，控制这些Thread的开启与停止
     static class DownloadThreadMonitor {
         ArrayList<DownloadThread> downloadThread;
@@ -235,12 +232,12 @@ public class FloodingTester implements BandwidthTestable{
 
 
         DownloadThreadMonitor(ArrayList<String> serverIP, String networkType, String key) {
-            this.key=key;
+            this.key = key;
             this.serverIP = serverIP;
             this.downloadThread = new ArrayList<>();
             for (String ip : serverIP)
                 for (int i = 0; i < ThreadNum; ++i)
-                    downloadThread.add(new DownloadThread(ip, 9876,key));
+                    downloadThread.add(new DownloadThread(ip, 9876, key));
 
             this.serverNum = serverIP.size();
             this.runningServerNum = 0;
@@ -342,7 +339,7 @@ public class FloodingTester implements BandwidthTestable{
                 } catch (InterruptedException e) {
                     double res = 0.0;
                     int n = speedSample.size();
-                    if(n<CheckerTimeoutWindow) return;
+                    if (n < CheckerTimeoutWindow) return;
                     for (int k = n - CheckerTimeoutWindow; k < n; ++k)
                         res += speedSample.get(k);
                     simpleSpeed = res / CheckerTimeoutWindow;

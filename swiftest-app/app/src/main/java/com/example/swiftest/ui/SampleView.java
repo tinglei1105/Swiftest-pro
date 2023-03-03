@@ -196,7 +196,6 @@ public class SampleView extends View {
                     tmp_min = tmp;
                 }
             }
-            Log.d(TAG, String.format("tmp min: %f, max: %f",tmp_min,tmp_max));
             rect_midheight /= valid_count;
             paint.setColor(Color.BLUE);
             paint.setStyle(Paint.Style.STROKE);//描边模式
