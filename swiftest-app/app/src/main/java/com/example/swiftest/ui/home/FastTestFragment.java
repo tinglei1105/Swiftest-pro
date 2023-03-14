@@ -24,6 +24,7 @@ import com.example.swiftest.databinding.FragmentFastTestBinding;
 import com.example.swiftest.speedtest.FloodingTester;
 import com.example.swiftest.speedtest.MyNetworkInfo;
 import com.example.swiftest.speedtest.NetworkUtil;
+import com.example.swiftest.speedtest.PacketTrainTester;
 import com.example.swiftest.speedtest.TestResult;
 import com.example.swiftest.speedtest.TestUtil;
 import com.example.swiftest.ui.SampleView;
@@ -68,15 +69,17 @@ public class FastTestFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            showTestingUI();
-                            TestResult result = floodingTester.test();
-                            showResult(result);
-                            List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(getContext());
-                            MyNetworkInfo.WifiInfo wifiInfo = NetworkUtil.getWifiInfo(getContext());
-                            MyNetworkInfo networkInfo = new MyNetworkInfo(String.valueOf(Build.VERSION.SDK_INT), NetworkUtil.getNetworkType(getContext()), cellInfo, wifiInfo);
-                            TestUtil.uploadTestResult(result, null, floodingTester.speedSample, networkInfo);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+//                            showTestingUI();
+//                            TestResult result = floodingTester.test();
+//                            showResult(result);
+//                            List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(getContext());
+//                            MyNetworkInfo.WifiInfo wifiInfo = NetworkUtil.getWifiInfo(getContext());
+//                            MyNetworkInfo networkInfo = new MyNetworkInfo(String.valueOf(Build.VERSION.SDK_INT), NetworkUtil.getNetworkType(getContext()), cellInfo, wifiInfo);
+//                            TestUtil.uploadTestResult(result, null, floodingTester.speedSample, networkInfo);
+                            PacketTrainTester packetTrainTester=new PacketTrainTester(getContext());
+                            packetTrainTester.test();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

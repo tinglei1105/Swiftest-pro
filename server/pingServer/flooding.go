@@ -23,6 +23,7 @@ type Sender struct {
 
 func (s *Sender) send() {
 	startTime := time.Now()
+
 	for time.Now().Before(startTime.Add(3 * time.Second)) {
 		if s.stopped {
 			break
@@ -30,6 +31,7 @@ func (s *Sender) send() {
 		sz, _ := s.sock.WriteToUDP(rawData, s.addr)
 		s.byteCount += sz
 	}
+
 	fmt.Println(s.byteCount)
 	jsonStr := []byte(fmt.Sprintf("{\"key\":\"%s\",\"count\":%v}", s.key, s.byteCount))
 	req, _ := http.NewRequest(http.MethodPost, reportUrl, bytes.NewBuffer(jsonStr))
