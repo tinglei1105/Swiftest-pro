@@ -1,4 +1,4 @@
-package com.example.swiftest.speedtest;
+package com.example.swiftest.speedtest.nonflooding;
 
 import android.Manifest;
 import android.content.Context;
@@ -9,12 +9,16 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.example.swiftest.speedtest.BandwidthTestable;
+import com.example.swiftest.speedtest.TestResult;
+import com.example.swiftest.speedtest.nonflooding.DownloadTest;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class NonFloodingTester implements BandwidthTestable{
+public class NonFloodingTester implements BandwidthTestable {
     Context context;
     private boolean stop=false;
     public NonFloodingTester(Context context){

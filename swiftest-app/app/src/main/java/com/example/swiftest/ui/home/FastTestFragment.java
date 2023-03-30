@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 
 import com.example.swiftest.R;
 import com.example.swiftest.databinding.FragmentFastTestBinding;
+import com.example.swiftest.speedtest.AdvancedFloodingTester;
 import com.example.swiftest.speedtest.FloodingTester;
 import com.example.swiftest.speedtest.MyNetworkInfo;
 import com.example.swiftest.speedtest.NetworkUtil;
@@ -42,7 +43,7 @@ public class FastTestFragment extends Fragment {
     private boolean isTesting = false;
     private String TAG = "FastTestFragment";
     SampleView sampleView;
-    FloodingTester floodingTester;
+    AdvancedFloodingTester floodingTester;
 
     public static FastTestFragment newInstance() {
         return new FastTestFragment();
@@ -63,7 +64,7 @@ public class FastTestFragment extends Fragment {
             if (!isTesting) {
                 binding.resultLayout.setVisibility(View.VISIBLE);
                 btn.setText(R.string.text_stop);
-                floodingTester = new FloodingTester(getContext());
+                floodingTester = new AdvancedFloodingTester(getContext());
                 Thread drawSampleThread = new DrawSampleThread(floodingTester.speedSample, sampleView);
                 Thread testThread = new Thread(new Runnable() {
                     @Override
@@ -72,10 +73,10 @@ public class FastTestFragment extends Fragment {
                             showTestingUI();
                             TestResult result = floodingTester.test();
                             showResult(result);
-                            List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(getContext());
-                            MyNetworkInfo.WifiInfo wifiInfo = NetworkUtil.getWifiInfo(getContext());
-                            MyNetworkInfo networkInfo = new MyNetworkInfo(String.valueOf(Build.VERSION.SDK_INT), NetworkUtil.getNetworkType(getContext()), cellInfo, wifiInfo);
-                            TestUtil.uploadTestResult(result, null, floodingTester.speedSample, networkInfo);
+//                            List<MyNetworkInfo.CellInfo> cellInfo = NetworkUtil.getCellInfo(getContext());
+//                            MyNetworkInfo.WifiInfo wifiInfo = NetworkUtil.getWifiInfo(getContext());
+//                            MyNetworkInfo networkInfo = new MyNetworkInfo(String.valueOf(Build.VERSION.SDK_INT), NetworkUtil.getNetworkType(getContext()), cellInfo, wifiInfo);
+                            //TestUtil.uploadTestResult(result, null, floodingTester.speedSample, networkInfo);
                             //PacketTrainTester packetTrainTester=new PacketTrainTester(getContext());
                             //packetTrainTester.test();
                         } catch (IOException e) {

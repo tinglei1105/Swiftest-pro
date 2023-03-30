@@ -78,8 +78,8 @@ public class PacketTrainTester {
 
     //  只用于接收是否完成
     static class Checker extends Thread{
-        PacketTrainTester.Receiver receiver;
-        public Checker(PacketTrainTester.Receiver receiver){
+        UDPReceiver receiver;
+        public Checker(UDPReceiver receiver){
             this.receiver=receiver;
         }
 
@@ -96,39 +96,7 @@ public class PacketTrainTester {
             } while (receiver.byteCount != lastSize || receiver.byteCount == 0);
         }
     }
-    // 只用于接收UDP，需要给定UDP socket
-    static class Receiver extends Thread{
-        public long startTime;
-        public long endTime;
-        public long byteCount=0;
-        DatagramSocket datagramSocket;
-        public Receiver(DatagramSocket datagramSocket){
-            this.datagramSocket=datagramSocket;
-        }
-        @Override
-        public void run() {
-            startTime=0;
-            int BUFFER_SIZE = 1024;
-            byte[] receive_buf = new byte[BUFFER_SIZE * 2];
-            DatagramPacket receive_packet = new DatagramPacket(receive_buf, receive_buf.length);
 
-            Thread t = Thread.currentThread();
-            while (!t.isInterrupted()) {
-                try {
-                    datagramSocket.receive(receive_packet);
-                    if (startTime == 0) {
-                        startTime = System.currentTimeMillis();
-                        Log.d("first packet arrived", String.valueOf(startTime));
-                    }
-                    endTime=System.currentTimeMillis();
-                    String receive_data = new String(receive_packet.getData(), 0, receive_packet.getLength());
-                    byteCount += receive_data.length();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
     // 用于发送控制信息，包含TCP和UDP socket
     static class Controller {
         Socket tcpSocket;
@@ -165,7 +133,7 @@ public class PacketTrainTester {
             Log.d("packet train controller", new String(receive_buf,0,sz));
         }
         long test(int sendBandwidth,int sendMs) throws IOException, InterruptedException {
-            Receiver receiver= new Receiver(udpSocket);
+            UDPReceiver receiver= new UDPReceiver(udpSocket);
             Checker checker= new Checker(receiver);
             String message=String.format("%d,%d",sendBandwidth,sendMs);
             checker.start();

@@ -12,6 +12,7 @@ public class TestResult {
     public double traffic;
     // long tail MB
     public double longTail;
+    public double serverUsage;
     // client_ip
     public String publicIP;
     public String privateIP;
@@ -50,6 +51,7 @@ public class TestResult {
         private double duration;
         private double traffic;
         private double longTail;
+        private double serverUsage;
         private String publicIP;
         private String privateIP;
         private String networkType;
@@ -82,6 +84,11 @@ public class TestResult {
             return this;
         }
 
+        public TestResultBuilder withServerUsage(double serverUsage) {
+            this.serverUsage = serverUsage;
+            return this;
+        }
+
         public TestResultBuilder withPublicIP(String publicIP) {
             this.publicIP = publicIP;
             return this;
@@ -106,8 +113,9 @@ public class TestResult {
             TestResult testResult = new TestResult(bandwidth, duration, traffic, longTail);
             testResult.publicIP = this.publicIP;
             testResult.privateIP = this.privateIP;
-            testResult.networkType = this.networkType;
             testResult.networkOperator = this.networkOperator;
+            testResult.networkType = this.networkType;
+            testResult.serverUsage = this.serverUsage;
             return testResult;
         }
     }

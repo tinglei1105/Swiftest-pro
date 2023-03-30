@@ -1,6 +1,8 @@
-package com.example.swiftest.speedtest;
+package com.example.swiftest.speedtest.nonflooding;
 
 import android.util.Log;
+
+import com.example.swiftest.speedtest.nonflooding.UDPDownload;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,7 +18,7 @@ public class DownloadTest {
     double trafficMB = 0;
     boolean completed = false;
 
-    DownloadTest(ArrayList<String> IP, String networkType) throws IOException {
+    public DownloadTest(ArrayList<String> IP, String networkType) throws IOException {
         serverIP = IP;
         ctlSocket = new ArrayList<>();
         outputStreams = new ArrayList<>();

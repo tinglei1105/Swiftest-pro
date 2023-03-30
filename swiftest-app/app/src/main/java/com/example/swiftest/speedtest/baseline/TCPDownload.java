@@ -1,4 +1,4 @@
-package com.example.swiftest.speedtest;
+package com.example.swiftest.speedtest.baseline;
 
 import android.util.Log;
 

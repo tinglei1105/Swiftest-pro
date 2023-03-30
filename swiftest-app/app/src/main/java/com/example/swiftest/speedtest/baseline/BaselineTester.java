@@ -1,4 +1,4 @@
-package com.example.swiftest.speedtest;
+package com.example.swiftest.speedtest.baseline;
 
 import android.Manifest;
 import android.content.Context;
@@ -7,16 +7,18 @@ import android.os.Build;
 import android.util.Log;
 
 import com.blankj.utilcode.util.NetworkUtils;
+import com.example.swiftest.speedtest.BandwidthTestable;
+import com.example.swiftest.speedtest.IPListGetter;
+import com.example.swiftest.speedtest.NetworkUtil;
+import com.example.swiftest.speedtest.TestResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BaselineTester implements BandwidthTestable{
+public class BaselineTester implements BandwidthTestable {
     Context context;
     String TAG="BaselineTester";
     private boolean stop=false;

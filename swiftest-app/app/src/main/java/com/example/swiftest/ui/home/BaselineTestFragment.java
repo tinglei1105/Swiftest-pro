@@ -13,19 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.swiftest.R;
 import com.example.swiftest.databinding.FragmentBaselineTestBinding;
-import com.example.swiftest.speedtest.BaselineTester;
-import com.example.swiftest.speedtest.IPListGetter;
+import com.example.swiftest.speedtest.baseline.BaselineTester;
 import com.example.swiftest.speedtest.TestResult;
 import com.example.swiftest.ui.GaugeView;
 
 import java.io.IOException;
-import java.util.Locale;
 
 public class BaselineTestFragment extends Fragment {
 

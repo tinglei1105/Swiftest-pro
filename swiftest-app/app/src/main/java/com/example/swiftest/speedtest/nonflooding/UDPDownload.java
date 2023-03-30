@@ -1,4 +1,4 @@
-package com.example.swiftest.speedtest;
+package com.example.swiftest.speedtest.nonflooding;
 
 import android.util.Log;
 
@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class UDPDownload extends Thread {
+public class UDPDownload extends Thread {
     DatagramSocket dataSocket;
     Socket ctlSocket;
     String ip;
@@ -22,7 +22,7 @@ class UDPDownload extends Thread {
     long receivingTime = 0;
     public ArrayList<Double> speedSample=new ArrayList<>();
 
-    UDPDownload(String ip, Socket ctlSocket, int speed, int sendingTime) {
+    public UDPDownload(String ip, Socket ctlSocket, int speed, int sendingTime) {
         try {
             dataSocket = new DatagramSocket();
             this.ctlSocket=ctlSocket;

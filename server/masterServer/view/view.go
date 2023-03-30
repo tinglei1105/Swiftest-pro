@@ -95,6 +95,26 @@ func UploadData(c *gin.Context) {
 		"message": "ok",
 	})
 }
+func UploadSwiftestData(c *gin.Context) {
+	var data model.SwiftestData
+	if err := c.BindJSON(&data); err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "wrong data format",
+		})
+		return
+	}
+	data.IP = c.ClientIP()
+	if err := model.AddSwiftestData(data); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "cannot write data",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
 
 type serverReport struct {
 	Key   string

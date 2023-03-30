@@ -70,6 +70,41 @@ public class TestUtil {
             e.printStackTrace();
         }
     }
+
+    public static void uploadSwiftestResult(TestResult result,ArrayList<Double>speedSample) {
+        try {
+            URL url = new URL("http://124.223.41.138:8080/report/swiftest");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+
+            JSONObject jsonParam = new JSONObject();
+            jsonParam.put("bandwidth", result.bandwidth);
+            jsonParam.put("duration", result.duration);
+            jsonParam.put("traffic", result.traffic);
+            jsonParam.put("long_tail",result.longTail);
+            jsonParam.put("server_usage",result.serverUsage);
+            jsonParam.put("speed_sample",new JSONArray(speedSample));
+            jsonParam.put("network_type",result.networkType);
+
+            Log.i("JSON", jsonParam.toString());
+            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+            OutputStreamWriter writer=new OutputStreamWriter(os, StandardCharsets.UTF_8);
+            writer.write(jsonParam.toString());
+            writer.flush();
+            writer.close();
+
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG", conn.getResponseMessage());
+
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public static void uploadDataUsage(String key, long dataUsage){
         try {
             URL url = new URL("http://124.223.41.138:8080/report/client");
