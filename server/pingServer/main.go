@@ -15,7 +15,8 @@ func main() {
 			fmt.Println(err)
 		}
 	}(serverSocket)
-
+	packetTrainServer.Listen(&packetTrainTCP, &packetTrainUDP)
+	go packetTrainServer.Run()
 	go downloadHandler()
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
