@@ -4,6 +4,8 @@ github.com/Q-Wednesday/advanced-sender v0.0.0-20230314090145-02e929bcd002 h1:64f
 github.com/Q-Wednesday/advanced-sender v0.0.0-20230314090145-02e929bcd002/go.mod h1:Kt9g5Y5MVmE12G3VflPhuFHtdA9MeW2XD3L57IZsCWM=
 github.com/Q-Wednesday/advanced-sender v0.0.0-20230314091718-7e94fd8d94cd h1:6L6eNZSspcKF3YEnTBXuyoqtxXfTFUKCCBSLYEKQHUU=
 github.com/Q-Wednesday/advanced-sender v0.0.0-20230314091718-7e94fd8d94cd/go.mod h1:Kt9g5Y5MVmE12G3VflPhuFHtdA9MeW2XD3L57IZsCWM=
+github.com/Q-Wednesday/advanced-sender v0.0.0-20230330031704-fd4665e2a957 h1:x7IvlzZSGzYtoefvitwmDlVWdrx+zYSwnWamB8nCaFg=
+github.com/Q-Wednesday/advanced-sender v0.0.0-20230330031704-fd4665e2a957/go.mod h1:Kt9g5Y5MVmE12G3VflPhuFHtdA9MeW2XD3L57IZsCWM=
 github.com/Q-Wednesday/advanced-sender v0.0.2 h1:YTQW1Hr6AgljRO7h6bnT1XuPMTnO9xWfvyoiAVCXeBQ=
 github.com/Q-Wednesday/advanced-sender v0.0.2/go.mod h1:Kt9g5Y5MVmE12G3VflPhuFHtdA9MeW2XD3L57IZsCWM=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
