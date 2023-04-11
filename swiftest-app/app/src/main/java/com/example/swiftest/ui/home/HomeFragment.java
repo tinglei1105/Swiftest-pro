@@ -38,16 +38,20 @@ public class HomeFragment extends Fragment {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                if(position==0){
-                    return new FastTestFragment();
-                }else{
-                    return new BaselineTestFragment();
+                switch (position){
+                    case 0:
+                        return new FastTestFragment();
+                    case 1:
+                        return new BaselineTestFragment();
+                    case 2:
+                        return new PacketTrainFragment();
                 }
+                return new FastTestFragment();
             }
 
             @Override
             public int getItemCount() {
-                return 2;
+                return 3;
             }
         });
 
@@ -60,6 +64,8 @@ public class HomeFragment extends Fragment {
                         break;
                     case 1:
                         tab.setText(R.string.tab_baseline_test);
+                    case 2:
+                        tab.setText(R.string.tab_packet_train);
                 }
             }
         });

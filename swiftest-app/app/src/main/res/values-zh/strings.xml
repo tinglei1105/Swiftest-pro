@@ -10,6 +10,7 @@
     <string name="option_language">选择语言</string>
     <string name="tab_fast_test">秒测网速</string>
     <string name="tab_baseline_test">基准测试</string>
+    <string name="tab_packet_train">包列测速</string>
     <string name="text_start">开始</string>
     <string name="text_test_result">秒测结果</string>
     <string name="text_test_duration">测试时间</string>

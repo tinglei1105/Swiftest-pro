@@ -29,6 +29,8 @@ public class AdvancedFloodingTester implements BandwidthTestable {
 
     final static private int SamplingInterval = 20;
     final static private int SamplingWindow = 100;
+
+    final static  private  int TestTimeout=3000;
     public AdvancedFloodingTester(Context context){
         this.context=context;
     }
@@ -105,7 +107,9 @@ public class AdvancedFloodingTester implements BandwidthTestable {
 
             sizeRecord.add(downloadSizeMBits);
             timeRecord.add(nowTime);
-
+            if(nowTime-startTime>=TestTimeout){
+                break;
+            }
             if (speed > receiverMonitor.sendSpeed*0.9){
                 receiverMonitor.stop();
                 //TODO 策略

@@ -9,6 +9,7 @@
     <string name="option_language">Language</string>
     <string name="tab_fast_test">Fast Test</string>
     <string name="tab_baseline_test">Baseline Test</string>
+    <string name="tab_packet_train">Packet Train</string>
     <string name="text_start">Start</string>
     <string name="text_stop">Stop</string>
     <string name="text_test_result">Test result</string>

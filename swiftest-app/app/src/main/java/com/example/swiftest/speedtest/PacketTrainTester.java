@@ -23,13 +23,17 @@ public class PacketTrainTester {
     public String networkType;
     private ArrayList<String> ipList;
     public String client_ip;
-    public int sendSpeed=200;
-    public int sendTime=100;
+    public int startSendSpeed=100; //Mbps
+    int maxSendSpeed=200;
+    public int sendTime=100; // ms
+    double paramK=1.2;
+    int paramM=3;
     static String TAG="PacketTrainTester";
+    TestListener testListener;
     public  PacketTrainTester(Context context){
         this.context=context;
     }
-    public TestResult test() throws InterruptedException {
+    public TestResult test() throws InterruptedException, IOException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 Log.d("No permission:", "ACCESS_FINE_LOCATION");
@@ -47,35 +51,77 @@ public class PacketTrainTester {
         String test_key = String.format(MultiLanguages.getAppLanguage(),
                 "%d%s", System.currentTimeMillis(), TestUtil.getRandomString(3));
         ArrayList<Controller>controllers=new ArrayList<>();
-        for(int i=0;i<1&&i<ipList.size();i++){
-            try {
-                controllers.add(new Controller(test_key, ipList.get(i), 9878, 9877));
-                controllers.get(i).connect();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                return new TestResult();
-            }catch (IOException e){
-                e.printStackTrace();
-                return  new TestResult();
-            }
-            ArrayList<TestThread>testThreads = new ArrayList<>();
-            for(int j=0;j<=i;j++){
-                testThreads.add(new TestThread(controllers.get(j),sendSpeed,sendTime));
-            }
-            for(TestThread testThread:testThreads){
-                testThread.start();
-            }
-            for(TestThread testThread:testThreads){
-                testThread.join();
-            }
-            for(Controller controller:controllers){
-                Log.d(TAG, String.format("%d-%d=%d",controller.endTime,controller.startTime,controller.endTime-controller.startTime));
-            }
-            Thread.sleep(100);
+        //long startTime=System.currentTimeMillis();
+        int counter=0;
+        int sendSpeed=startSendSpeed;
+        AdvancedClient client=new AdvancedClient(test_key,ipList.get(0));
+        try {
+            client.connect();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return new TestResult();
+        long startTime=System.currentTimeMillis();
+        ArrayList<Double>resultList=new ArrayList<>();
+        while (true){
+            UDPReceiver receiver=new UDPReceiver(client.udpSock);
+            Checker checker=new Checker(receiver);
+            checker.start();
+            receiver.start();
+            Log.d(TAG, String.format("send speed:%d, counter:%d",sendSpeed,counter));
+            client.startSend(sendSpeed,sendTime);
+            checker.join();
+            Log.d(TAG, "test: stop check");
+            receiver.interrupt();
+            receiver.join();
+            Log.d(TAG, "test: stop receive");
+            long duration=receiver.endTime-receiver.startTime;
+            Log.d(TAG, String.format("duration:%d",duration));
+            if( (double)duration <paramK*sendTime){
+                Log.d(TAG, "test: not saturated");
+                sendSpeed+=50;
+                counter=0;
+                resultList.clear();
+                if(sendSpeed>maxSendSpeed){
+                    Log.d(TAG, "test: cannot test");
+                    break;//cannot test
+                }
+                if(testListener!=null){
+                    testListener.process("increase speed\n");
+                }
+                //Thread.sleep(50);
+                continue;
+            }
+            counter++;
+            if(testListener!=null){
+                testListener.process(String.format("send speed:%d,count:%d,duration%d\n",sendSpeed,counter,duration));
+            }
+            resultList.add((double)sendSpeed*sendTime/duration);
+            if(counter==paramM)break;
+            //Thread.sleep(50);
+        }
+        double duration=(double)(System.currentTimeMillis()-startTime)/1000;
+        double traffic=(double)client.getUsage()/1024/1024;
+        client.end();
+        Log.d(TAG, resultList.toString());
+        double sum=0;
+        for(Double num:resultList){
+            sum+=num;
+        }
+        double result=0;
+        if(resultList.size()>0){
+            result=sum/resultList.size();
+        }
+        TestResult testResult=TestResult.builder().withBandwidth(result).withDuration(duration).withTraffic(traffic).build();
+        return testResult;
     }
+    public void setOnTestListener(TestListener listener){
+        this.testListener=listener;
+    }
+    public  static abstract class TestListener{
+        public void process(String output){
 
+        }
+    }
     //  只用于接收是否完成
     static class Checker extends Thread{
         UDPReceiver receiver;
@@ -132,7 +178,7 @@ public class PacketTrainTester {
             int sz=tcpSocket.getInputStream().read(receive_buf);
             Log.d("packet train controller", new String(receive_buf,0,sz));
         }
-        long test(int sendBandwidth,int sendMs) throws IOException, InterruptedException {
+        void test(int sendBandwidth, int sendMs) throws IOException, InterruptedException {
             UDPReceiver receiver= new UDPReceiver(udpSocket);
             Checker checker= new Checker(receiver);
             String message=String.format("%d,%d",sendBandwidth,sendMs);
@@ -148,10 +194,9 @@ public class PacketTrainTester {
             Log.d("packet train receive", String.valueOf(receiver.byteCount));
             startTime= receiver.startTime;
             endTime=receiver.endTime;
-            return receiver.endTime-receiver.startTime;
         }
     }
-    class TestThread extends Thread{
+    static class TestThread extends Thread{
         Controller controller;
         int sendBandWidth;
         int sendMs;
@@ -166,9 +211,7 @@ public class PacketTrainTester {
         public void run() {
             try {
                 controller.test(sendBandWidth,sendMs);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
