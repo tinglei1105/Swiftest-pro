@@ -24,7 +24,7 @@ public class PacketTrainTester {
     private ArrayList<String> ipList;
     public String client_ip;
     public int startSendSpeed=100; //Mbps
-    int maxSendSpeed=200;
+    int maxSendSpeed=400;
     public int sendTime=100; // ms
     double paramK=1.2;
     int paramM=3;
@@ -76,7 +76,9 @@ public class PacketTrainTester {
             Log.d(TAG, "test: stop receive");
             long duration=receiver.endTime-receiver.startTime;
             Log.d(TAG, String.format("duration:%d",duration));
-            if( (double)duration <paramK*sendTime){
+            double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
+            Log.d(TAG,String.format("send speed: %d, actual speed:%.2f",sendSpeed,speed));
+            if( speed >paramK*sendSpeed){
                 Log.d(TAG, "test: not saturated");
                 sendSpeed+=50;
                 counter=0;
@@ -95,7 +97,7 @@ public class PacketTrainTester {
             if(testListener!=null){
                 testListener.process(String.format("send speed:%d,count:%d,duration%d\n",sendSpeed,counter,duration));
             }
-            resultList.add((double)sendSpeed*sendTime/duration);
+            resultList.add(speed);
             if(counter==paramM)break;
             //Thread.sleep(50);
         }
