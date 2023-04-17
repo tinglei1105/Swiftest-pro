@@ -24,7 +24,7 @@ public class PacketTrainTester {
     private ArrayList<String> ipList;
     public String client_ip;
     public int startSendSpeed=100; //Mbps
-    int maxSendSpeed=400;
+    int maxSendSpeed=600;
     public int sendTime=100; // ms
     double paramK=1.2;
     int paramM=3;
