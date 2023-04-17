@@ -74,6 +74,9 @@ public class PacketTrainTester {
             Log.d(TAG, String.format("duration:%d",duration));
             double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
             Log.d(TAG,String.format("send speed: %d, actual speed:%.2f",sendSpeed,speed));
+            if(duration==0){
+                continue;
+            }
             if( speed > sendSpeed/paramK){
                 Log.d(TAG, "test: not saturated");
                 sendSpeed+=50;

@@ -11,7 +11,7 @@ import java.net.SocketException;
 class UDPReceiver extends Thread {
     public long startTime;
     static String TAG="UDPReceiver";
-    public long endTime;
+    public long endTime=0;
     public long byteCount = 0;
     DatagramSocket datagramSocket;
 
