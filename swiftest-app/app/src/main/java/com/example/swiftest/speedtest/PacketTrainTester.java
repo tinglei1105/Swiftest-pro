@@ -64,14 +64,10 @@ public class PacketTrainTester {
         ArrayList<Double>resultList=new ArrayList<>();
         while (true){
             UDPReceiver receiver=new UDPReceiver(client.udpSock);
-            Checker checker=new Checker(receiver);
-            checker.start();
             receiver.start();
             Log.d(TAG, String.format("send speed:%d, counter:%d",sendSpeed,counter));
             client.startSend(sendSpeed,sendTime);
-            checker.join();
             Log.d(TAG, "test: stop check");
-            receiver.interrupt();
             receiver.join();
             Log.d(TAG, "test: stop receive");
             long duration=receiver.endTime-receiver.startTime;
