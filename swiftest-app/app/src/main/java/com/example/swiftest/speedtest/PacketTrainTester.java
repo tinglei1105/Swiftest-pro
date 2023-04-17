@@ -78,7 +78,7 @@ public class PacketTrainTester {
             Log.d(TAG, String.format("duration:%d",duration));
             double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
             Log.d(TAG,String.format("send speed: %d, actual speed:%.2f",sendSpeed,speed));
-            if( speed >paramK*sendSpeed){
+            if( speed > sendSpeed/paramK){
                 Log.d(TAG, "test: not saturated");
                 sendSpeed+=50;
                 counter=0;
@@ -95,7 +95,7 @@ public class PacketTrainTester {
             }
             counter++;
             if(testListener!=null){
-                testListener.process(String.format("send speed:%d,count:%d,duration%d\n",sendSpeed,counter,duration));
+                testListener.process(String.format("send speed:%d,count:%d,speed %.2f\n",sendSpeed,counter,speed));
             }
             resultList.add(speed);
             if(counter==paramM)break;
