@@ -7,6 +7,8 @@ import (
 	"masterServer/model"
 	"masterServer/service"
 	"net/http"
+	"os"
+	"time"
 )
 
 func GetIPList(c *gin.Context) {
@@ -157,4 +159,26 @@ func ReportClientUsage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "ok",
 	})
+}
+
+func ReportPacketTrain(c *gin.Context) {
+	data, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "cannot get data",
+		})
+		return
+	}
+	timestamp := time.Now().Unix()
+	err = os.WriteFile(fmt.Sprintf("static/%v.csv", timestamp), data, 0777)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "cannot create file",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+
 }

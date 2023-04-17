@@ -4,8 +4,10 @@ go 1.19
 
 require github.com/gin-gonic/gin v1.8.2
 
+require github.com/Q-Wednesday/advanced-sender v0.0.3-0.20230413063158-69568b289623
+
 require (
-	github.com/Q-Wednesday/advanced-sender v0.0.0-20230330092739-b4fe6e1113ad // indirect
+	// indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
