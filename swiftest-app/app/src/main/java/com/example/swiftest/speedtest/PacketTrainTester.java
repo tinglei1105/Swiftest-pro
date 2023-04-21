@@ -72,7 +72,8 @@ public class PacketTrainTester {
             Log.d(TAG, "test: stop receive");
             long duration=receiver.endTime-receiver.startTime;
             Log.d(TAG, String.format("duration:%d",duration));
-            double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
+            //double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
+            double speed=receiver.speedMid;
             Log.d(TAG,String.format("send speed: %d, actual speed:%.2f",sendSpeed,speed));
             if(duration==0){
                 continue;
