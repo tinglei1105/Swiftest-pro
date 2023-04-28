@@ -15,6 +15,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class PacketTrainTester {
@@ -53,7 +55,7 @@ public class PacketTrainTester {
         ArrayList<Controller>controllers=new ArrayList<>();
         //long startTime=System.currentTimeMillis();
         int counter=0;
-        int sendSpeed=startSendSpeed;
+
         AdvancedClient client=new AdvancedClient(test_key,ipList.get(0));
         try {
             client.connect();
@@ -62,6 +64,23 @@ public class PacketTrainTester {
         }
         long startTime=System.currentTimeMillis();
         ArrayList<Double>resultList=new ArrayList<>();
+        List<Integer> speedList;
+        int speedStage=0;
+        switch (networkType) {
+            case "5G":
+                speedList= Arrays.asList(172, 289, 485, 806);
+                break;
+            case "WiFi":
+                speedList=Arrays.asList(106,309,401, 683,905);
+                break;
+            case "4G":
+                speedList=Arrays.asList(28, 55, 284);
+                break;
+            default:
+                speedList=Arrays.asList(20,100,200);
+                break;
+        }
+        int sendSpeed= speedList.get(speedStage);
         while (true){
             UDPReceiver receiver=new UDPReceiver(client.udpSock);
             receiver.start();
@@ -80,7 +99,12 @@ public class PacketTrainTester {
             }
             if( speed > sendSpeed/paramK){
                 Log.d(TAG, "test: not saturated");
-                sendSpeed+=50;
+                speedStage++;
+                if(speedStage<speedList.size()){
+                    sendSpeed= speedList.get(speedStage);
+                }else{
+                    sendSpeed+=100;
+                }
                 counter=0;
                 resultList.clear();
                 if(sendSpeed>maxSendSpeed){
