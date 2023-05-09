@@ -23,6 +23,7 @@ class UDPReceiver extends Thread {
     long sampleWindow=50;
 
     public double speedMid=0;
+    public double speedMax=0;
 
     public UDPReceiver(DatagramSocket datagramSocket) {
         this.datagramSocket = datagramSocket;
@@ -39,10 +40,16 @@ class UDPReceiver extends Thread {
             long duration=timestamps.get(i+indexInterval)-timestamps.get(i);
             speedSample.add( (double)byteRecv*8000/duration/1024/1024 );
         }
+        if(speedSample.size()==0){
+            speedMid=0;
+            speedMax=0;
+            return;
+        }
         Log.d(TAG, speedSample.toString());
         Collections.sort(speedSample);
         Log.d(TAG, speedSample.toString());
         speedMid=speedSample.get(speedSample.size()/2);
+        speedMax=speedSample.get(speedSample.size()-1);
     }
 
     @Override

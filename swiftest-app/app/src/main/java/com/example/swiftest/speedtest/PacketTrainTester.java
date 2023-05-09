@@ -93,11 +93,12 @@ public class PacketTrainTester {
             Log.d(TAG, String.format("duration:%d",duration));
             //double speed=(double) receiver.byteCount*1000/duration/1024/1024*8;
             double speed=receiver.speedMid;
+            double speedMax=receiver.speedMax;
             Log.d(TAG,String.format("send speed: %d, actual speed:%.2f",sendSpeed,speed));
-            if(duration==0){
+            if(duration==0||speed==0||speedMax==0){
                 continue;
             }
-            if( speed > sendSpeed/paramK){
+            if( speedMax > sendSpeed/paramK){
                 Log.d(TAG, "test: not saturated");
                 speedStage++;
                 if(speedStage<speedList.size()){

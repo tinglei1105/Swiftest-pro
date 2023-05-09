@@ -116,7 +116,7 @@ public class TestUtil {
             conn.setDoInput(true);
 
             JSONObject jsonParam = new JSONObject();
-            jsonParam.put("network_type",ptResult.networkType);
+            jsonParam.put("network_type",stResult.networkType);
             jsonParam.put("packet_bandwidth", ptResult.bandwidth);
             jsonParam.put("packet_duration", ptResult.duration);
             jsonParam.put("packet_traffic", ptResult.traffic);
