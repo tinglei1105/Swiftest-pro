@@ -17,6 +17,7 @@ func register(r *gin.Engine) {
 	r.POST("/report/client", view.ReportClientUsage)
 	r.POST("/report/swiftest", view.UploadSwiftestData)
 	r.POST("/report/packet-train", view.ReportPacketTrain)
+	r.POST("/report/packet-train-baseline", view.ReportPacketTrainBaseline)
 	r.StaticFS("/static", http.Dir("./static"))
 	//r.StaticFile("/static")
 }

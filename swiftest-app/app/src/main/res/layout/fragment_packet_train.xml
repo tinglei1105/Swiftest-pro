@@ -18,5 +18,12 @@
         android:layout_gravity="center"
         android:id="@+id/packet_train_btn"
         android:text="@string/text_start"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:text="Start then Swiftest"
+        android:id="@+id/packet_train_swiftest_btn"/>
 
 </FrameLayout>

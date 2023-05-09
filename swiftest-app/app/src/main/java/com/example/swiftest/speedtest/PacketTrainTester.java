@@ -127,6 +127,7 @@ public class PacketTrainTester {
         }
         double duration=(double)(System.currentTimeMillis()-startTime)/1000;
         double traffic=(double)client.getUsage()/1024/1024;
+        double server_usage=(double) client.getUsage()/1024/1024;
         client.end();
         Log.d(TAG, resultList.toString());
         double sum=0;
@@ -137,7 +138,9 @@ public class PacketTrainTester {
         if(resultList.size()>0){
             result=sum/resultList.size();
         }
-        TestResult testResult=TestResult.builder().withBandwidth(result).withDuration(duration).withTraffic(traffic).build();
+
+        TestResult testResult=TestResult.builder().withBandwidth(result).withDuration(duration)
+                .withTraffic(traffic).withServerUsage(server_usage).build();
         return testResult;
     }
     public void setOnTestListener(TestListener listener){

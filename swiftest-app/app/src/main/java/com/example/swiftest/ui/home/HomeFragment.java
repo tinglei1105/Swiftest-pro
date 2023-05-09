@@ -64,8 +64,10 @@ public class HomeFragment extends Fragment {
                         break;
                     case 1:
                         tab.setText(R.string.tab_baseline_test);
+                        break;
                     case 2:
                         tab.setText(R.string.tab_packet_train);
+                        break;
                 }
             }
         });
